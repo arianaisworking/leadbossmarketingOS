@@ -787,8 +787,7 @@ async function generatePack(mode){
   box.innerHTML='<div style="text-align:center;padding:50px 20px;color:var(--muted);font-size:14px"><div style="font-size:36px;margin-bottom:12px">⏳</div>Generating your content pack...</div>';
   try{
     const ai=await callAI(mode);
-    const rawAssets=ai.assets || (ai.raw ? [{title:'Generated Output',content:ai.raw}] : []);
-    const assets=rawAssets.map(a=>({title:a.title||'Asset',content:normalizeAssetContent(a.content??a.text??a.value??a)}));
+    const assets=ai.assets || (ai.raw ? [{title:'Generated Output',content:ai.raw}] : []);
     pack.assets=assets;
     data.packs.unshift(pack);data.research.unshift(researchItem);save();renderAssetsFromAI(assets);renderResearch();flashAssetsSaved();setTimeout(()=>toggleAssetCard(0),50);
   }catch(err){
@@ -839,15 +838,10 @@ function copyAssetById(index, btn){
   });
 }
 function normalizeAssetContent(content){
-  if(content==null||content===undefined) return '';
+  if(content==null) return '';
   if(typeof content==='string') return content;
-  if(typeof content==='number'||typeof content==='boolean') return String(content);
-  if(Array.isArray(content)) return content.map(function(x,i){
-    if(typeof x==='string') return x;
-    if(x&&typeof x==='object') return (x.title||x.name||('Item '+(i+1)))+': '+(x.content||x.text||x.value||JSON.stringify(x,null,2));
-    return String(x);
-  }).join('\n\n');
-  if(typeof content==='object'){try{return JSON.stringify(content,null,2);}catch(e){return '[object]';}}
+  if(Array.isArray(content)) return content.map((x,i)=> typeof x==='string' ? x : ((x.title||'Item '+(i+1))+'\n'+(x.content||JSON.stringify(x,null,2)))).join('\n\n');
+  if(typeof content==='object') return Object.entries(content).map(([k,v])=>(k+': '+(typeof v==='string'?v:JSON.stringify(v,null,2)))).join('\n');
   return String(content);
 }
 function renderAssetsFromAI(assets){
@@ -992,7 +986,7 @@ Create content that speaks directly to this pain point and positions The Lead Bo
     const assets=ai.assets || (ai.raw ? [{title:'Generated Output',content:ai.raw}] : []);
     outputTitle.textContent='Content from: '+story.title;
     outputBucket.innerHTML='';
-    assets.forEach((a,i)=>{outputBucket.innerHTML+=assetCardHTML(a.title||('Asset '+(i+1)),normalizeAssetContent(a.content??a.text??a.value??a),i);});
+    assets.forEach((a,i)=>{outputBucket.innerHTML+=assetCardHTML(a.title,a.content,i);});
     if(assets.length) setTimeout(()=>toggleAssetCard(0),50);
   }catch(err){
     outputBucket.innerHTML='<div style="background:var(--blush);border:1px solid var(--blush2);border-radius:18px;padding:18px;color:var(--rose-dark)"><b>Error: </b>'+escapeHtml(err.message)+'</div>';
