@@ -388,18 +388,16 @@ button,input,textarea,select{font:inherit}a,button,.tab-btn,.btn,.asset-card-hea
             <div><label>Supabase Anon Key <span style="font-weight:400;text-transform:none;letter-spacing:0">(required)</span></label><input id="setSupabaseAnon" placeholder="eyJ..."></div>
             <div><label>Function Name <span style="font-weight:400;text-transform:none;letter-spacing:0">(required)</span></label><input id="setFunctionName" placeholder="generate-content"></div>
           </div>
-          <div class="sop" style="margin-top:16px">
-            <label class="check" style="margin:0;text-transform:none;letter-spacing:0;color:var(--ink);font-size:13px;background:#fff">
-              <input id="setCloudSync" type="checkbox">
-              <span><b>Enable shared Supabase memory</b><br><span style="color:var(--muted);font-size:12px">When on, this dashboard saves shared calendar, research, stories, generated packs, directory, brand brain, and focus tasks to Supabase so you and Aima see the same data.</span></span>
-            </label>
+          <div style="margin-top:16px;background:linear-gradient(135deg,rgba(95,159,120,.08),rgba(95,159,120,.04));border:1px solid rgba(95,159,120,.25);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px">
+            <span style="font-size:16px">🔄</span>
+            <span style="font-size:13px;color:var(--ink)"><b>Shared memory is always on</b> — saves every change automatically. You and Aima always see the same data. Just fill in your Supabase credentials below and hit Save Settings.</span>
           </div>
           <div class="toolbar" style="margin-top:16px">
             <button class="btn blush small" onclick="testBackendConnection()">Test AI Connection</button>
             <button class="btn secondary small" onclick="loadCloudData()">Load Shared Memory</button>
             <button class="btn secondary small" onclick="saveCloudDataNow()">Save Shared Memory</button>
           </div>
-          <p class="mini-note" id="cloudSyncStatus" style="margin-top:8px">Shared memory status: local browser only until enabled and saved.</p>
+          <p class="mini-note" id="cloudSyncStatus" style="margin-top:8px">Shared memory auto-saves when Supabase credentials are set in Settings.</p>
         </div>
       </div>
 
@@ -489,7 +487,7 @@ button,input,textarea,select{font:inherit}a,button,.tab-btn,.btn,.asset-card-hea
 
 <script>
 const LS='tlb_marketing_os_v2';
-const defaultData={calendar:[],research:[],packs:[],stories:[],directory:[],mission:{},settings:{supabaseUrl:'',supabaseAnonKey:'',functionName:'generate-content',cloudSync:false},focusTasks:[{text:'1 hour comment marketing: Facebook, LinkedIn, Reddit',done:false},{text:'Keep content focused on agency owners, not consumers',done:false},{text:'Save strong questions/objections into Story Bank',done:false}],brand:{company:'The Lead Boss',email:'ariana@theleadboss.com',core:'Your agents sell. We deliver opportunities.',offer:'Premium Medicare live transfers, lead generation support, agency growth consulting, pilot programs, and scalable daily volume for agencies that need consistent conversations.',icp:'Medicare agencies, FMOs, IMOs, insurance organizations, and call centers with multiple licensed agents, active lead budgets, and capacity for 50–120+ live transfers per day.',tone:'Bright, premium, confident, helpful, agency-focused, compliant, clear, growth-minded, not spammy, not desperate.',avoid:'Avoid: cheap leads, guaranteed sales, unrealistic claims, aggressive compliance claims, spam language, copying competitor wording, pretending to be a customer if that is not true. For Reddit/Facebook, be transparent and useful; mention The Lead Boss softly only where natural.'}};
+const defaultData={calendar:[],research:[],packs:[],stories:[],directory:[],mission:{},settings:{supabaseUrl:'',supabaseAnonKey:'',functionName:'generate-content',cloudSync:true},focusTasks:[{text:'1 hour comment marketing: Facebook, LinkedIn, Reddit',done:false},{text:'Keep content focused on agency owners, not consumers',done:false},{text:'Save strong questions/objections into Story Bank',done:false}],brand:{company:'The Lead Boss',email:'ariana@theleadboss.com',core:'Your agents sell. We deliver opportunities.',offer:'Premium Medicare live transfers, lead generation support, agency growth consulting, pilot programs, and scalable daily volume for agencies that need consistent conversations.',icp:'Medicare agencies, FMOs, IMOs, insurance organizations, and call centers with multiple licensed agents, active lead budgets, and capacity for 50–120+ live transfers per day.',tone:'Bright, premium, confident, helpful, agency-focused, compliant, clear, growth-minded, not spammy, not desperate.',avoid:'Avoid: cheap leads, guaranteed sales, unrealistic claims, aggressive compliance claims, spam language, copying competitor wording, pretending to be a customer if that is not true. For Reddit/Facebook, be transparent and useful; mention The Lead Boss softly only where natural.'}};
 let data=load();let calendar;
 let uploadCache={source:[],story:[],comment:[]};
 function load(){try{return {...defaultData,...JSON.parse(localStorage.getItem(LS)||'{}')}}catch(e){return defaultData}}
@@ -693,7 +691,9 @@ function cloudPayload(){
 }
 let cloudSaveTimer=null;
 function scheduleCloudSave(){
-  if(!(data.settings||{}).cloudSync) return;
+  // Auto-save whenever Supabase credentials are configured — no toggle needed
+  const s=data.settings||{};
+  if(!s.supabaseUrl||!s.supabaseAnonKey) return;
   clearTimeout(cloudSaveTimer);
   cloudSaveTimer=setTimeout(()=>saveCloudDataNow(true),900);
 }
@@ -1011,14 +1011,25 @@ function fillBrand(){
   document.getElementById('setSupabaseUrl').value=(data.settings||{}).supabaseUrl||'';
   document.getElementById('setSupabaseAnon').value=(data.settings||{}).supabaseAnonKey||'';
   document.getElementById('setFunctionName').value=(data.settings||{}).functionName||'generate-content';
-  const syncEl=document.getElementById('setCloudSync'); if(syncEl) syncEl.checked=!!((data.settings||{}).cloudSync);
+  // cloudSync auto-determined from credentials — no checkbox needed
   // Show warning if brand is empty
   const isEmpty=!b.company&&!b.offer&&!b.icp;
   const notice=document.getElementById('brandNotice');
   if(notice) notice.style.display=isEmpty?'flex':'none';
   if(isEmpty) toggleAccordion('accBrand');
 }
-function saveSettings(){data.settings={...(data.settings||{}),supabaseUrl:val('setSupabaseUrl'),supabaseAnonKey:val('setSupabaseAnon'),functionName:val('setFunctionName')||'generate-content',cloudSync:!!(document.getElementById('setCloudSync')&&document.getElementById('setCloudSync').checked)};save();const el=document.getElementById('cloudSyncStatus');if(el)el.textContent=data.settings.cloudSync?'Shared memory enabled. Click Save Shared Memory or Load Shared Memory.':'Shared memory disabled. Using local browser memory.';}
+function saveSettings(){
+  const url=val('setSupabaseUrl'), key=val('setSupabaseAnonKey')||val('setSupabaseAnon');
+  data.settings={...(data.settings||{}),
+    supabaseUrl:url,
+    supabaseAnonKey:key,
+    functionName:val('setFunctionName')||'generate-content',
+    cloudSync:!!(url&&key)
+  };
+  save();
+  const el=document.getElementById('cloudSyncStatus');
+  if(el) el.textContent=(url&&key)?'✓ Shared memory active — auto-saves every change.':'No Supabase credentials — using local browser memory.';
+}
 async function testBackendConnection(){try{const st=data.settings||{};if(!st.supabaseUrl||!st.supabaseAnonKey) return alert('Save Supabase URL and anon key first.');const oldName=document.getElementById('sourceName').value;const oldText=document.getElementById('sourceText').value;document.getElementById('sourceName').value='Backend Test';document.getElementById('sourceText').value='Create a short test content pack about Medicare live transfers for agency owners.';const ai=await callAI('content');showModal('AI connection successful. Response preview:\n\n'+JSON.stringify(ai,null,2).slice(0,2500));document.getElementById('sourceName').value=oldName;document.getElementById('sourceText').value=oldText;}catch(err){showModal('AI connection failed:\n\n'+err.message+'\n\nChecklist:\n1. Is OPENAI_API_KEY saved in Supabase Secrets?\n2. Is generate-content deployed?\n3. Is Supabase URL correct?\n4. Is anon key correct?')}}
 const CHANNEL_PRESETS=[
   {name:'Meta Business Suite', icon:'📘', url:'https://business.facebook.com', notes:'Schedule Facebook and Instagram posts/reels. Save final captions in the calendar item before scheduling.'},
@@ -1269,7 +1280,14 @@ function copyDayPost(btn){
 }
 
 
-function boot(){renderMission();renderFocusTasks();checkBrandWarning();updateBrandBrainStatus();refreshMetrics();fillBrand();seedDirectory();renderDirectory();renderChannelButtons();renderResearch();renderStories();renderAssets();initCalendar();}
+function boot(){renderMission();renderFocusTasks();
+  // Auto-load from Supabase on every page load if credentials are set
+  const s=data.settings||{};
+  if(s.supabaseUrl&&s.supabaseAnonKey){
+    const el=document.getElementById('cloudSyncStatus');
+    if(el) el.textContent='Syncing shared memory...';
+    loadCloudData().catch(()=>{});
+  }checkBrandWarning();updateBrandBrainStatus();refreshMetrics();fillBrand();seedDirectory();renderDirectory();renderChannelButtons();renderResearch();renderStories();renderAssets();initCalendar();}
 boot();
 </script>
 </body>
