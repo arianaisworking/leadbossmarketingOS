@@ -382,10 +382,18 @@ button,input,textarea,select{font:inherit}a,button,.tab-btn,.btn,.asset-card-hea
             <div><p style="margin:0;font-size:13px;color:var(--muted)">The OpenAI API key stays inside Supabase Secrets as OPENAI_API_KEY — never paste it here.</p></div>
             <button class="btn gold small" onclick="saveSettings()">Save</button>
           </div>
+          <div style="background:linear-gradient(135deg,#fff8fb,#fff);border:1px solid var(--blush2);border-radius:14px;padding:14px 16px;margin-bottom:16px">
+            <label style="color:var(--rose-dark)">OpenAI API Key <span style="font-weight:400;text-transform:none;letter-spacing:0">(required for all AI features)</span></label>
+            <div style="display:flex;gap:8px">
+              <input id="setOpenaiKey" type="password" placeholder="sk-..." style="flex:1">
+              <button class="btn blush small" onclick="saveOpenaiKey()">Save Key</button>
+            </div>
+            <p class="mini-note" style="margin-top:6px">Your key is stored locally in your browser only — never sent anywhere except OpenAI directly.</p>
+          </div>
           <div class="row3">
-            <div><label>Supabase Project URL</label><input id="setSupabaseUrl" placeholder="https://xxxx.supabase.co"></div>
-            <div><label>Supabase Anon Public Key</label><input id="setSupabaseAnon" placeholder="eyJ..."></div>
-            <div><label>AI Function Name</label><input id="setFunctionName" placeholder="generate-content"></div>
+            <div><label>Supabase Project URL <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label><input id="setSupabaseUrl" placeholder="https://xxxx.supabase.co"></div>
+            <div><label>Supabase Anon Key <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label><input id="setSupabaseAnon" placeholder="eyJ..."></div>
+            <div><label>Function Name <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label><input id="setFunctionName" placeholder="generate-content"></div>
           </div>
           <div class="toolbar" style="margin-top:16px">
             <button class="btn blush small" onclick="testBackendConnection()">Test AI Connection</button>
@@ -479,6 +487,7 @@ button,input,textarea,select{font:inherit}a,button,.tab-btn,.btn,.asset-card-hea
 
 <script>
 const LS='tlb_marketing_os_v2';
+function getApiKey(){ return (data.settings||{}).openaiKey||localStorage.getItem('tlb_openai_key')||''; }
 const defaultData={calendar:[],research:[],packs:[],stories:[],directory:[],mission:{},settings:{supabaseUrl:'',supabaseAnonKey:'',functionName:'generate-content'},focusTasks:[{text:'1 hour comment marketing: Facebook, LinkedIn, Reddit',done:false},{text:'Keep content focused on agency owners, not consumers',done:false},{text:'Save strong questions/objections into Story Bank',done:false}],brand:{company:'The Lead Boss',email:'ariana@theleadboss.com',core:'Your agents sell. We deliver opportunities.',offer:'Premium Medicare live transfers, lead generation support, agency growth consulting, pilot programs, and scalable daily volume for agencies that need consistent conversations.',icp:'Medicare agencies, FMOs, IMOs, insurance organizations, and call centers with multiple licensed agents, active lead budgets, and capacity for 50–120+ live transfers per day.',tone:'Bright, premium, confident, helpful, agency-focused, compliant, clear, growth-minded, not spammy, not desperate.',avoid:'Avoid: cheap leads, guaranteed sales, unrealistic claims, aggressive compliance claims, spam language, copying competitor wording, pretending to be a customer if that is not true. For Reddit/Facebook, be transparent and useful; mention The Lead Boss softly only where natural.'}};
 let data=load();let calendar;
 let uploadCache={source:[],story:[],comment:[]};
@@ -640,17 +649,18 @@ async function generatePack(mode){
   box.innerHTML='<div style="grid-column:span 3;text-align:center;padding:50px 20px;color:var(--muted);font-size:14px"><div style="font-size:36px;margin-bottom:12px">⏳</div>Generating your content pack...</div>';
 
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
+    const res=await fetch('https://api.openai.com/v1/chat/completions',{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+getApiKey()},
       body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
+        model:'gpt-4o',
         max_tokens:1000,
-        messages:[{role:'user',content:prompt+`\n\nRespond ONLY with a JSON object. No preamble, no backticks, no markdown. Shape: {"assets":[{"title":"Asset Name","content":"Full content here"},...]} — one object per asset type listed above.`}]
+        messages:[{role:'user',content:prompt+'\n\nRespond ONLY with a JSON object. No preamble, no backticks, no markdown. Shape: {"assets":[{"title":"Asset Name","content":"Full content here"},...]} — one object per asset type listed above.'}]
       })
     });
     const d=await res.json();
-    const raw=(d.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');
+    if(d.error) throw new Error(d.error.message||JSON.stringify(d.error));
+    const raw=d.choices?.[0]?.message?.content||'';
     let parsed;
     try{ parsed=JSON.parse(raw.replace(/^```json|^```|```$/gm,'').trim()); }catch(e){ throw new Error('AI parse error: '+raw.slice(0,200)); }
     const assets=parsed.assets||parsed;
@@ -869,20 +879,20 @@ Generate these assets:
       role:'user',
       content: hasPhotos
         ? [
-            ...story.photos.map(p=>({type:'image',source:{type:'base64',media_type:p.type,data:p.dataUrl.split(',')[1]}})),
+            ...story.photos.map(p=>({type:'image_url',image_url:{url:p.dataUrl}})),
             {type:'text',text:'Here are the screenshots of the complaint/pain point. '+systemPrompt}
           ]
         : [{type:'text',text:systemPrompt}]
     }];
 
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
+    const res=await fetch('https://api.openai.com/v1/chat/completions',{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages})
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+getApiKey()},
+      body:JSON.stringify({model:'gpt-4o',max_tokens:1000,messages})
     });
     const d=await res.json();
     if(d.error) throw new Error(d.error.message||JSON.stringify(d.error));
-    const raw=(d.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');
+    const raw=d.choices?.[0]?.message?.content||'';
     let parsed;
     try{parsed=JSON.parse(raw.replace(/^```json|^```|```$/gm,'').trim());}catch(e){throw new Error('Parse error: '+raw.slice(0,200));}
     const assets=parsed.assets||[];
@@ -923,13 +933,25 @@ function fillBrand(){
   document.getElementById('setSupabaseUrl').value=(data.settings||{}).supabaseUrl||'';
   document.getElementById('setSupabaseAnon').value=(data.settings||{}).supabaseAnonKey||'';
   document.getElementById('setFunctionName').value=(data.settings||{}).functionName||'generate-content';
+  const keyEl=document.getElementById('setOpenaiKey');if(keyEl) keyEl.value=(data.settings||{}).openaiKey||localStorage.getItem('tlb_openai_key')||'';
   // Show warning if brand is empty
   const isEmpty=!b.company&&!b.offer&&!b.icp;
   const notice=document.getElementById('brandNotice');
   if(notice) notice.style.display=isEmpty?'flex':'none';
   if(isEmpty) toggleAccordion('accBrand');
 }
-function saveSettings(){data.settings={supabaseUrl:val('setSupabaseUrl'),supabaseAnonKey:val('setSupabaseAnon'),functionName:val('setFunctionName')||'generate-content'};save();alert('Backend settings saved.')}
+function saveOpenaiKey(){
+  const key=document.getElementById('setOpenaiKey').value.trim();
+  if(!key) return alert('Paste your OpenAI API key first.');
+  if(!data.settings) data.settings={};
+  data.settings.openaiKey=key;
+  localStorage.setItem('tlb_openai_key',key);
+  save();
+  const btn=event.target;
+  btn.textContent='✓ Saved!';btn.style.background='var(--success)';
+  setTimeout(()=>{btn.textContent='Save Key';btn.style.background='';},1800);
+}
+function saveSettings(){data.settings={...(data.settings||{}),supabaseUrl:val('setSupabaseUrl'),supabaseAnonKey:val('setSupabaseAnon'),functionName:val('setFunctionName')||'generate-content'};save();}
 async function testBackendConnection(){try{const st=data.settings||{};if(!st.supabaseUrl||!st.supabaseAnonKey) return alert('Save Supabase URL and anon key first.');const oldName=document.getElementById('sourceName').value;const oldText=document.getElementById('sourceText').value;document.getElementById('sourceName').value='Backend Test';document.getElementById('sourceText').value='Create a short test content pack about Medicare live transfers for agency owners.';const ai=await callAI('content');showModal('AI connection successful. Response preview:\n\n'+JSON.stringify(ai,null,2).slice(0,2500));document.getElementById('sourceName').value=oldName;document.getElementById('sourceText').value=oldText;}catch(err){showModal('AI connection failed:\n\n'+err.message+'\n\nChecklist:\n1. Is OPENAI_API_KEY saved in Supabase Secrets?\n2. Is generate-content deployed?\n3. Is Supabase URL correct?\n4. Is anon key correct?')}}
 const CHANNEL_PRESETS=[
   {name:'Meta Business Suite', icon:'📘', url:'https://business.facebook.com', notes:'Schedule Facebook and Instagram posts/reels. Save final captions in the calendar item before scheduling.'},
@@ -1038,30 +1060,25 @@ async function fetchUrl(){
   status.textContent = 'Reading page...';
 
   try {
-    // Use Anthropic API to fetch + extract the page content
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    // Fetch via CORS proxy, then clean up with OpenAI
+    const proxyRes = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(url));
+    const proxyData = await proxyRes.json();
+    const rawHtml = proxyData.contents || '';
+    const stripped = rawHtml.replace(/<style[^>]*>[\s\S]*?<\/style>/gi,'')
+      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi,'')
+      .replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim().slice(0,6000);
+    if(!stripped || stripped.length < 40) throw new Error('Could not read this URL. Try a public article or paste manually.');
+    const aiRes = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {'Content-Type':'application/json','Authorization':'Bearer '+getApiKey()},
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-        messages: [{
-          role: 'user',
-          content: `Fetch the full readable content from this URL and return ONLY the extracted text — the article body, post text, captions, or transcript. No commentary, no summary, no formatting. Just the raw content from the page so I can paste it into my content tool.\n\nURL: ${url}`
-        }]
+        model: 'gpt-4o', max_tokens: 1000,
+        messages: [{role:'user',content:'Extract and return ONLY the main readable content from this page — article body, post text, or key info. Remove nav, ads, footers. Plain text only, no commentary.\n\n'+stripped}]
       })
     });
-
-    const d = await res.json();
-    if(d.error) throw new Error(d.error.message || JSON.stringify(d.error));
-
-    // Extract text blocks from response (skip tool_use blocks)
-    const text = (d.content || [])
-      .filter(b => b.type === 'text')
-      .map(b => b.text)
-      .join('\n')
-      .trim();
+    const aiData = await aiRes.json();
+    if(aiData.error) throw new Error(aiData.error.message||JSON.stringify(aiData.error));
+    const text = aiData.choices?.[0]?.message?.content?.trim() || '';
 
     if(!text || text.length < 40) throw new Error('Could not extract readable content from this URL. Try a public article or paste manually.');
 
@@ -1131,23 +1148,20 @@ Respond ONLY with a JSON object. No preamble. No markdown. No backticks. The obj
 Generate exactly 5 day objects (Mon–Fri), varying platforms across LinkedIn, Facebook, Instagram, and using types like Authority Post, Carousel, Reel Script, Engagement Poll, Story Post.`;
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
       method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1000,
-        messages:[{role:'user',content:prompt}]
-      })
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+getApiKey()},
+      body:JSON.stringify({model:'gpt-4o',max_tokens:1000,messages:[{role:'user',content:prompt}]})
     });
     const d = await res.json();
-    const raw = (d.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');
+    if(d.error) throw new Error(d.error.message||JSON.stringify(d.error));
+    const raw = d.choices?.[0]?.message?.content||'';
     let plan;
     try { plan = JSON.parse(raw.replace(/```json|```/g,'').trim()); }
     catch(e){ throw new Error('Could not parse AI response. Raw: '+raw.slice(0,300)); }
     renderWeeklyCampaign(plan);
   } catch(err) {
-    body.innerHTML='<div style="background:var(--blush);border:1px solid var(--blush2);border-radius:18px;padding:20px;color:var(--rose-dark)"><b>Error: </b>'+escapeHtml(err.message)+'<br><br><span style="font-size:13px;color:var(--muted)">The campaign builder uses the Anthropic API directly. Make sure you\'re running this on Claude.ai as an artifact, or check your network.</span></div>';
+    body.innerHTML='<div style="background:var(--blush);border:1px solid var(--blush2);border-radius:18px;padding:20px;color:var(--rose-dark)"><b>Error: </b>'+escapeHtml(err.message)+'<br><br><span style="font-size:13px;color:var(--muted)">Make sure your OpenAI API key is saved in Settings and is valid.</span></div>';
     title.textContent='Weekly Campaign Plan';
   }
 }
