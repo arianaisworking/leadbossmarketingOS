@@ -651,62 +651,55 @@ function getWorkerUrl(){
   return (data.settings||{}).workerUrl||localStorage.getItem('tlb_worker_url')||'https://leadbossai.arianaisworking.workers.dev';
 }
 async function callAI(mode, overridePayload){
-  const workerUrl = getWorkerUrl();
-  if(!workerUrl) throw new Error('No Worker URL set. Go to ⚙ Settings → Backend Connection and paste your Cloudflare Worker URL.');
-  const payload = overridePayload || buildPayload(mode);
+  var workerUrl = getWorkerUrl();
+  if(!workerUrl) throw new Error('No Worker URL set. Go to Settings and paste your Cloudflare Worker URL.');
+  var payload = overridePayload || buildPayload(mode);
+  var brand = payload.brand || {};
+  var source = payload.source || {};
+  var images = (payload.images||[]).filter(function(x){return x.dataUrl;});
 
-  // Build the OpenAI prompt from the payload
-  const brand = payload.brand || {};
-  const source = payload.source || {};
-  const images = (payload.images||[]).filter(x=>x.dataUrl);
+  var systemPrompt = 'You are The Lead Boss AI content strategist. '
+    + 'Brand: ' + (brand.company||'The Lead Boss') + '. '
+    + 'Core Message: ' + (brand.core||'') + '. '
+    + 'Offer: ' + (brand.offer||'') + '. '
+    + 'ICP: ' + (brand.icp||'') + '. '
+    + 'Tone: ' + (brand.tone||'') + '. '
+    + 'Guardrails: ' + (brand.avoid||'') + '. '
+    + 'Source: ' + (source.name||'') + '. '
+    + 'Platform: ' + (source.platform||'') + '. '
+    + 'Text: ' + (source.text||'');
 
-  const systemPrompt = `You are The Lead Boss AI content strategist.
-Brand: ${brand.company||'The Lead Boss'}
-Core Message: ${brand.core||''}
-Offer: ${brand.offer||''}
-ICP: ${brand.icp||''}
-Tone: ${brand.tone||''}
-Guardrails: ${brand.avoid||''}
-Mode: ${mode}
-Source Name: ${source.name||''}
-Platform: ${source.platform||''}
-Source Text: ${source.text||''}`;
-
-  const modeInstructions = {
-    content: `Generate a full content pack. Respond ONLY with JSON: {"assets":[{"title":"Asset Name","content":"Full content"}]}. Generate these assets: AI Photo Analysis, Original Lead Boss Angle, LinkedIn Authority Post, Facebook Post, Carousel Slides — ChatGPT Image Prompts, Reel / Short Script, YouTube Short, Industry Insight, Comment Question, Blog Outline, ChatGPT Image Prompt, ElevenLabs Voice Prompt, HeyGen Avatar Prompt, Calendar Suggestions.`,
-    comments: `Generate comment marketing replies. Respond ONLY with JSON: {"assets":[{"title":"Voice/Tone Name","content":"The comment text"}]}. Include: The Lead Boss company voice, Ariana founder voice, Luisa customer voice (if applicable), Reddit educational voice. Keep natural, not spammy, platform-appropriate.`,
-    campaign: `Generate a full 5-day weekly campaign plan. Respond ONLY with JSON: {"theme":"Campaign theme","goal":"What this achieves","days":[{"day":"Monday","platform":"LinkedIn","type":"Authority Post","hook":"Opening line","body":"Full post body","cta":"Call to action","tip":"Posting tip for Aima"}],"dm_script":"2-sentence DM","comment_angle":"Comment marketing angle for the week"}`,
-    analyze: `Analyze the uploaded images and source. Respond ONLY with JSON: {"assets":[{"title":"Asset Name","content":"Analysis or generated content"}]}.`,
+  var instructions = {
+    content: 'Generate a full content pack. Respond ONLY with valid JSON no backticks no preamble. Shape: {"assets":[{"title":"Name","content":"Text"}]}. Assets to include: AI Photo Analysis, Original Lead Boss Angle, LinkedIn Authority Post, Facebook Post, Carousel Slides with ChatGPT Image Prompts, Reel Script, YouTube Short, Industry Insight, Comment Question, Blog Outline, ChatGPT Image Prompt, ElevenLabs Voice Prompt, HeyGen Avatar Prompt, Calendar Suggestions.',
+    comments: 'Generate comment replies. Respond ONLY with valid JSON: {"assets":[{"title":"Voice Name","content":"Comment text"}]}. Include Lead Boss company voice, Ariana founder voice, Luisa customer voice if applicable, Reddit educational voice. Keep natural and not spammy.',
+    campaign: 'Generate a 5-day campaign plan. Respond ONLY with valid JSON: {"theme":"string","goal":"string","days":[{"day":"Monday","platform":"LinkedIn","type":"Post type","hook":"string","body":"string","cta":"string","tip":"string"}],"dm_script":"string","comment_angle":"string"}',
+    analyze: 'Analyze the content. Respond ONLY with valid JSON: {"assets":[{"title":"Name","content":"Analysis"}]}'
   };
 
-  const userContent = images.length
-    ? [
-        ...images.map(img => ({type:'image_url', image_url:{url: img.dataUrl}})),
-        {type:'text', text: systemPrompt + '
+  var instruction = instructions[mode] || instructions.content;
+  var fullPrompt = systemPrompt + ' ' + instruction;
 
-' + (modeInstructions[mode]||modeInstructions.content)}
-      ]
-    : systemPrompt + '
+  var userContent;
+  if(images.length){
+    userContent = images.map(function(img){ return {type:'image_url', image_url:{url:img.dataUrl}}; });
+    userContent.push({type:'text', text: fullPrompt});
+  } else {
+    userContent = fullPrompt;
+  }
 
-' + (modeInstructions[mode]||modeInstructions.content);
-
-  const res = await fetch(workerUrl, {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({
-      model:'gpt-4o',
-      max_tokens:1500,
-      messages:[{role:'user', content: userContent}]
-    })
+  var res = await fetch(workerUrl, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({model:'gpt-4o', max_tokens:1500, messages:[{role:'user', content:userContent}]})
   });
 
-  let json={};
-  try{ json=await res.json(); }catch(e){ throw new Error('Worker returned an unreadable response.'); }
-  if(!res.ok || json.error) throw new Error((json.error?.message||json.error) || ('Worker failed: '+res.status));
+  var json = {};
+  try{ json = await res.json(); }catch(e){ throw new Error('Worker returned unreadable response.'); }
+  if(!res.ok || json.error) throw new Error((json.error&&json.error.message)||json.error||('Worker failed: '+res.status));
 
-  const raw = json.choices?.[0]?.message?.content||'';
-  let parsed;
-  try{ parsed = JSON.parse(raw.replace(/^```json|^```|```$/gm,'').trim()); }
+  var raw = (json.choices&&json.choices[0]&&json.choices[0].message&&json.choices[0].message.content)||'';
+  var parsed;
+  try{ parsed = JSON.parse(raw.replace(/```json|```/g,'').trim()); }
   catch(e){ return {assets:[{title:'AI Output', content:raw}]}; }
   return parsed;
 }
