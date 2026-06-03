@@ -382,14 +382,7 @@ button,input,textarea,select{font:inherit}a,button,.tab-btn,.btn,.asset-card-hea
             <div><p style="margin:0;font-size:13px;color:var(--muted)">The OpenAI API key stays inside Supabase Secrets as OPENAI_API_KEY — never paste it here.</p></div>
             <button class="btn gold small" onclick="saveSettings()">Save</button>
           </div>
-          <div style="background:linear-gradient(135deg,#fff8fb,#fff);border:1px solid var(--blush2);border-radius:14px;padding:14px 16px;margin-bottom:16px">
-            <label style="color:var(--rose-dark)">OpenAI API Key <span style="font-weight:400;text-transform:none;letter-spacing:0">(required for all AI features)</span></label>
-            <div style="display:flex;gap:8px">
-              <input id="setOpenaiKey" type="password" placeholder="sk-..." style="flex:1">
-              <button class="btn blush small" onclick="saveOpenaiKey()">Save Key</button>
-            </div>
-            <p class="mini-note" style="margin-top:6px">Your key is stored locally in your browser only — never sent anywhere except OpenAI directly.</p>
-          </div>
+          <div class="sop" style="margin-bottom:16px"><b>OpenAI is connected through Supabase Secrets.</b><br>The dashboard never stores or sees the OpenAI API key. Add/replace it only in Supabase → Edge Functions → Secrets as <code>OPENAI_API_KEY</code>.</div>
           <div class="row3">
             <div><label>Supabase Project URL <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label><input id="setSupabaseUrl" placeholder="https://xxxx.supabase.co"></div>
             <div><label>Supabase Anon Key <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label><input id="setSupabaseAnon" placeholder="eyJ..."></div>
@@ -404,7 +397,7 @@ button,input,textarea,select{font:inherit}a,button,.tab-btn,.btn,.asset-card-hea
     </div>
   </section>
 
-    <p class="footer-note">The Lead Boss Marketing OS v3.2 • Editable calendar statuses • Local-first MVP • Supabase/OpenAI ready</p>
+    <p class="footer-note">The Lead Boss Marketing OS v3.7 • Editable calendar statuses • Supabase Edge AI • OpenAI key protected</p>
 </main>
 
 <!-- Directory edit modal — OUTSIDE all page sections so it's always visible -->
@@ -487,7 +480,6 @@ button,input,textarea,select{font:inherit}a,button,.tab-btn,.btn,.asset-card-hea
 
 <script>
 const LS='tlb_marketing_os_v2';
-function getApiKey(){ return (data.settings||{}).openaiKey||localStorage.getItem('tlb_openai_key')||''; }
 const defaultData={calendar:[],research:[],packs:[],stories:[],directory:[],mission:{},settings:{supabaseUrl:'',supabaseAnonKey:'',functionName:'generate-content'},focusTasks:[{text:'1 hour comment marketing: Facebook, LinkedIn, Reddit',done:false},{text:'Keep content focused on agency owners, not consumers',done:false},{text:'Save strong questions/objections into Story Bank',done:false}],brand:{company:'The Lead Boss',email:'ariana@theleadboss.com',core:'Your agents sell. We deliver opportunities.',offer:'Premium Medicare live transfers, lead generation support, agency growth consulting, pilot programs, and scalable daily volume for agencies that need consistent conversations.',icp:'Medicare agencies, FMOs, IMOs, insurance organizations, and call centers with multiple licensed agents, active lead budgets, and capacity for 50–120+ live transfers per day.',tone:'Bright, premium, confident, helpful, agency-focused, compliant, clear, growth-minded, not spammy, not desperate.',avoid:'Avoid: cheap leads, guaranteed sales, unrealistic claims, aggressive compliance claims, spam language, copying competitor wording, pretending to be a customer if that is not true. For Reddit/Facebook, be transparent and useful; mention The Lead Boss softly only where natural.'}};
 let data=load();let calendar;
 let uploadCache={source:[],story:[],comment:[]};
@@ -639,38 +631,61 @@ OUTPUT REQUIRED:
 Keep it premium, useful, agency-owner focused, authentic, and visually differentiated.`
 }
 function buildPayload(mode){return {mode,brand:data.brand,source:{name:val('sourceName')||'Untitled Source',platform:val('sourcePlatform'),link:val('sourceLink'),text:val('sourceText')},images:uploadCache.source.map(x=>({name:x.name,type:x.type,dataUrl:x.dataUrl}))}}
+
+function getFunctionUrl(){
+  const st=data.settings||{};
+  const base=(st.supabaseUrl||'').trim().replace(/\/+$/,'');
+  const fn=(st.functionName||'generate-content').trim().replace(/^\/+|\/+$/g,'');
+  if(!base) throw new Error('Supabase Project URL is missing. Go to Settings → Backend Connection.');
+  if(!st.supabaseAnonKey) throw new Error('Supabase anon key is missing. Go to Settings → Backend Connection.');
+  return base + '/functions/v1/' + fn;
+}
+async function callAI(mode, overridePayload){
+  const st=data.settings||{};
+  const payload = overridePayload || buildPayload(mode);
+  const res = await fetch(getFunctionUrl(), {
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'apikey':st.supabaseAnonKey,
+      'Authorization':'Bearer '+st.supabaseAnonKey
+    },
+    body:JSON.stringify(payload)
+  });
+  let json={};
+  try{ json=await res.json(); }catch(e){ throw new Error('AI function returned an unreadable response.'); }
+  if(!res.ok || json.error) throw new Error(json.error || ('AI function failed with status '+res.status));
+  return json;
+}
+
 async function generatePack(mode){
   const prompt=buildPrompt(mode);
   const pack={id:Date.now()+'',date:new Date().toLocaleString(),source:val('sourceName')||'Untitled Source',prompt,assets:null};
   const researchItem={id:Date.now()+'r',date:new Date().toLocaleString(),source:pack.source,platform:val('sourcePlatform'),link:val('sourceLink'),text:val('sourceText').slice(0,500),photos:uploadCache.source.map(x=>({name:x.name,type:x.type,dataUrl:x.dataUrl}))};
 
-  // Show loading state in asset bucket
   const box=document.getElementById('assetBucket');
-  box.innerHTML='<div style="grid-column:span 3;text-align:center;padding:50px 20px;color:var(--muted);font-size:14px"><div style="font-size:36px;margin-bottom:12px">⏳</div>Generating your content pack...</div>';
+  box.innerHTML='<div style="text-align:center;padding:50px 20px;color:var(--muted);font-size:14px"><div style="font-size:36px;margin-bottom:12px">⏳</div>Generating your content pack through Supabase...</div>';
 
   try{
-    const res=await fetch('https://api.openai.com/v1/chat/completions',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+getApiKey()},
-      body:JSON.stringify({
-        model:'gpt-4o',
-        max_tokens:1000,
-        messages:[{role:'user',content:prompt+'\n\nRespond ONLY with a JSON object. No preamble, no backticks, no markdown. Shape: {"assets":[{"title":"Asset Name","content":"Full content here"},...]} — one object per asset type listed above.'}]
-      })
-    });
-    const d=await res.json();
-    if(d.error) throw new Error(d.error.message||JSON.stringify(d.error));
-    const raw=d.choices?.[0]?.message?.content||'';
-    let parsed;
-    try{ parsed=JSON.parse(raw.replace(/^```json|^```|```$/gm,'').trim()); }catch(e){ throw new Error('AI parse error: '+raw.slice(0,200)); }
-    const assets=parsed.assets||parsed;
+    const ai=await callAI(mode);
+    const assets=ai.assets || (ai.raw ? [{title:'Generated Output',content:ai.raw}] : []);
     pack.assets=assets;
-    data.packs.unshift(pack);data.research.unshift(researchItem);save();renderAssetsFromAI(assets);renderResearch();flashAssetsSaved();setTimeout(()=>toggleAssetCard(0),50);
+    data.packs.unshift(pack);
+    data.research.unshift(researchItem);
+    save();
+    renderAssetsFromAI(assets);
+    renderResearch();
+    flashAssetsSaved();
+    setTimeout(()=>toggleAssetCard(0),50);
   }catch(err){
-    data.packs.unshift(pack);data.research.unshift(researchItem);save();renderAssets('');renderResearch();
-    box.innerHTML='<div style="grid-column:span 3;background:var(--blush);border:1px solid var(--blush2);border-radius:18px;padding:20px;color:var(--rose-dark)"><b>Could not generate: </b>'+escapeHtml(err.message)+'</div>';
+    data.packs.unshift(pack);
+    data.research.unshift(researchItem);
+    save();
+    renderResearch();
+    box.innerHTML='<div style="background:var(--blush);border:1px solid var(--blush2);border-radius:18px;padding:20px;color:var(--rose-dark)"><b>Could not generate: </b>'+escapeHtml(err.message)+'<br><br><span class="mini-note">Check Settings → Backend Connection. OpenAI key should only be saved in Supabase Secrets as OPENAI_API_KEY.</span></div>';
   }
 }
+
 function copyMasterPrompt(mode){showModal(buildPrompt(mode))}
 function assetCardHTML(title, content='', index=0){
   const preview = (content||'').replace(/\n/g,' ').trim().slice(0,80);
@@ -843,67 +858,34 @@ async function runStoryGenerate(story){
   const outputBucket=document.getElementById('storyOutputBucket');
   const outputTitle=document.getElementById('storyOutputTitle');
   outputTitle.textContent='Generating from: '+story.title;
-  outputBucket.innerHTML='<div style="grid-column:span 1;text-align:center;padding:40px 20px;color:var(--muted);font-size:14px"><div style="font-size:32px;margin-bottom:10px">⏳</div>Reading screenshots + building content...</div>';
+  outputBucket.innerHTML='<div style="text-align:center;padding:40px 20px;color:var(--muted);font-size:14px"><div style="font-size:32px;margin-bottom:10px">⏳</div>Reading screenshots + building content through Supabase...</div>';
   outputCard.style.display='block';
   outputCard.scrollIntoView({behavior:'smooth',block:'start'});
 
-  const brand=data.brand;
-  const hasPhotos=story.photos&&story.photos.length;
-
-  const systemPrompt=`You are The Lead Boss content strategist. Your job is to take a real complaint, frustration, or pain point from an insurance agent or agency owner — often captured as a screenshot — and transform it into original, empathetic content that positions The Lead Boss as the solution WITHOUT being preachy or salesy.
-
-Brand: ${brand.company}
-Core Message: ${brand.core}
-Tone: ${brand.tone}
-Guardrails: ${brand.avoid}
-
-Pain Point Type: ${story.type}
+  const storyText=`Pain Point Type: ${story.type}
 Title: ${story.title}
 Notes: ${story.details||'None'}
 
-Extract the underlying frustration from the screenshot(s) and notes. Then generate original Lead Boss content that speaks directly to that pain.
+Create content that speaks directly to this pain point and positions The Lead Boss as the solution without sounding salesy.`;
+  const payload={
+    mode:'content',
+    brand:data.brand,
+    source:{name:story.title||'Pain Point',platform:'Pain → Content',link:'',text:storyText,visual:'Analyze attached screenshots for the underlying complaint or frustration.'},
+    images:(story.photos||[]).map(x=>({name:x.name,type:x.type,dataUrl:x.dataUrl}))
+  };
 
-Respond ONLY with JSON. No backticks, no preamble. Format:
-{"assets":[{"title":"Asset Name","content":"Full content here"}]}
-
-Generate these assets:
-1. LinkedIn Authority Post — lead with the pain, end with The Lead Boss angle
-2. Facebook Post — more conversational, community-focused
-3. Carousel Slides — ChatGPT Image Prompts — For each of 5 slides write: the slide copy (headline + 1-2 lines), then on the next line "IMAGE PROMPT:" followed by a paste-ready ChatGPT image generation prompt for that slide. Brand colors: rose (#c65f7e), champagne (#d9b96f), white, dark ink. Style: premium, clean, bold typography, insurance/professional feel. Mariam pastes each IMAGE PROMPT directly into ChatGPT to get the finished slide visual.
-4. Reel / Short Script — 30-45 sec, hook in first 3 words
-5. Blog Outline — headline + 5 section headers + CTA
-6. Comment Template — soft empathetic reply to use when you see this complaint in the wild`;
-
-  try {
-    const messages=[{
-      role:'user',
-      content: hasPhotos
-        ? [
-            ...story.photos.map(p=>({type:'image_url',image_url:{url:p.dataUrl}})),
-            {type:'text',text:'Here are the screenshots of the complaint/pain point. '+systemPrompt}
-          ]
-        : [{type:'text',text:systemPrompt}]
-    }];
-
-    const res=await fetch('https://api.openai.com/v1/chat/completions',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+getApiKey()},
-      body:JSON.stringify({model:'gpt-4o',max_tokens:1000,messages})
-    });
-    const d=await res.json();
-    if(d.error) throw new Error(d.error.message||JSON.stringify(d.error));
-    const raw=d.choices?.[0]?.message?.content||'';
-    let parsed;
-    try{parsed=JSON.parse(raw.replace(/^```json|^```|```$/gm,'').trim());}catch(e){throw new Error('Parse error: '+raw.slice(0,200));}
-    const assets=parsed.assets||[];
+  try{
+    const ai=await callAI('content', payload);
+    const assets=ai.assets || (ai.raw ? [{title:'Generated Output',content:ai.raw}] : []);
     outputTitle.textContent='Content from: '+story.title;
     outputBucket.innerHTML='';
     assets.forEach((a,i)=>{outputBucket.innerHTML+=assetCardHTML(a.title,a.content,i);});
     if(assets.length) setTimeout(()=>toggleAssetCard(0),50);
-  } catch(err){
+  }catch(err){
     outputBucket.innerHTML='<div style="background:var(--blush);border:1px solid var(--blush2);border-radius:18px;padding:18px;color:var(--rose-dark)"><b>Error: </b>'+escapeHtml(err.message)+'</div>';
   }
 }
+
 function generateComments(){const platform=val('commentPlatform'),input=val('commentInput');const buckets={
 'Helpful Reply':`A useful, non-salesy reply for ${platform}:\n\nA lot of agencies run into this when they focus on lead count instead of conversation quality. One strong filter is asking: will this source actually increase agent talk time, or just add more names to chase?`,
 'Thought Leadership':`Authority-building reply for ${platform}:\n\nThe hidden issue is usually operations, not just marketing. If the agency cannot handle consistent transfer volume, even a good lead source gets wasted. Capacity and follow-up matter as much as lead flow.`,
@@ -933,23 +915,11 @@ function fillBrand(){
   document.getElementById('setSupabaseUrl').value=(data.settings||{}).supabaseUrl||'';
   document.getElementById('setSupabaseAnon').value=(data.settings||{}).supabaseAnonKey||'';
   document.getElementById('setFunctionName').value=(data.settings||{}).functionName||'generate-content';
-  const keyEl=document.getElementById('setOpenaiKey');if(keyEl) keyEl.value=(data.settings||{}).openaiKey||localStorage.getItem('tlb_openai_key')||'';
   // Show warning if brand is empty
   const isEmpty=!b.company&&!b.offer&&!b.icp;
   const notice=document.getElementById('brandNotice');
   if(notice) notice.style.display=isEmpty?'flex':'none';
   if(isEmpty) toggleAccordion('accBrand');
-}
-function saveOpenaiKey(){
-  const key=document.getElementById('setOpenaiKey').value.trim();
-  if(!key) return alert('Paste your OpenAI API key first.');
-  if(!data.settings) data.settings={};
-  data.settings.openaiKey=key;
-  localStorage.setItem('tlb_openai_key',key);
-  save();
-  const btn=event.target;
-  btn.textContent='✓ Saved!';btn.style.background='var(--success)';
-  setTimeout(()=>{btn.textContent='Save Key';btn.style.background='';},1800);
 }
 function saveSettings(){data.settings={...(data.settings||{}),supabaseUrl:val('setSupabaseUrl'),supabaseAnonKey:val('setSupabaseAnon'),functionName:val('setFunctionName')||'generate-content'};save();}
 async function testBackendConnection(){try{const st=data.settings||{};if(!st.supabaseUrl||!st.supabaseAnonKey) return alert('Save Supabase URL and anon key first.');const oldName=document.getElementById('sourceName').value;const oldText=document.getElementById('sourceText').value;document.getElementById('sourceName').value='Backend Test';document.getElementById('sourceText').value='Create a short test content pack about Medicare live transfers for agency owners.';const ai=await callAI('content');showModal('AI connection successful. Response preview:\n\n'+JSON.stringify(ai,null,2).slice(0,2500));document.getElementById('sourceName').value=oldName;document.getElementById('sourceText').value=oldText;}catch(err){showModal('AI connection failed:\n\n'+err.message+'\n\nChecklist:\n1. Is OPENAI_API_KEY saved in Supabase Secrets?\n2. Is generate-content deployed?\n3. Is Supabase URL correct?\n4. Is anon key correct?')}}
@@ -965,6 +935,25 @@ const CHANNEL_PRESETS=[
   {name:'HeyGen', icon:'🎬', url:'https://www.heygen.com', notes:'Paste HeyGen Avatar Prompts from the Content Factory. Keep the same business-casual avatar for brand consistency.'},
   {name:'Google Drive', icon:'📁', url:'https://drive.google.com', notes:'Store all generated content, assets, and media files here. Organize by month and platform.'},
 ];
+
+function renderDirectory(){
+  const el=document.getElementById('directoryList');
+  if(!el) return;
+  el.innerHTML=data.directory.length?'':'<div class="empty" style="grid-column:span 3">No social channels saved yet. Click a channel above to add it.</div>';
+  data.directory.forEach(x=>{
+    el.innerHTML+=`<div class="item" onclick="openDirEdit('${x.id}')" style="cursor:pointer">
+      <div style="display:flex;align-items:flex-start;gap:10px">
+        <div style="font-size:24px">${x.icon||'🔗'}</div>
+        <div style="min-width:0;flex:1">
+          <h4>${escapeHtml(x.name||'Channel')}</h4>
+          ${x.url?`<p style="word-break:break-all">${escapeHtml(x.url)}</p>`:''}
+          ${x.notes?`<p>${escapeHtml(x.notes.slice(0,150))}${x.notes.length>150?'…':''}</p>`:''}
+        </div>
+      </div>
+    </div>`;
+  });
+}
+
 function renderChannelButtons(){
   const container=document.getElementById('channelButtons');
   if(!container) return;
@@ -1051,66 +1040,64 @@ async function fetchUrl(){
   const btn = document.getElementById('fetchBtn');
   const textarea = document.getElementById('sourceText');
 
-  if(!url) return status.textContent = 'Paste a URL first.';
-  if(!/^https?:\/\//i.test(url)) return status.textContent = 'URL must start with http:// or https://';
-  if(!getApiKey()) return status.textContent = '✗ Add your OpenAI API key in Settings first.';
+  if(!url) { status.textContent = 'Paste a URL first.'; return; }
+  if(!/^https?:\/\//i.test(url)) { status.textContent = 'URL must start with http:// or https://'; return; }
 
-  btn.textContent = 'Reading...';
-  btn.disabled = true;
-  status.style.color = 'var(--muted)';
-  status.textContent = 'Asking GPT to read the page...';
+  btn.textContent='Fetching...';
+  btn.disabled=true;
+  status.style.color='var(--muted)';
+  status.textContent='Trying to read the public page...';
 
-  try {
-    // Ask GPT-4o to fetch and summarize the URL using its browsing knowledge
-    // For pages it can't browse, it will say so clearly
-    const res = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json','Authorization':'Bearer '+getApiKey()},
-      body: JSON.stringify({
-        model: 'gpt-4o',
-        max_tokens: 1000,
-        messages: [{
-          role: 'user',
-          content: 'I need the main text content from this URL for my content research tool. Please visit this URL and return ONLY the core readable content — the article text, post body, captions, or main copy. Strip out navigation, ads, headers, footers. Return plain text only, no commentary, no formatting.\n\nIf you cannot access the URL, just return the word CANNOTFETCH and nothing else.\n\nURL: ' + url
-        }]
-      })
-    });
-    const d = await res.json();
-    if(d.error) throw new Error(d.error.message || JSON.stringify(d.error));
-    const text = (d.choices?.[0]?.message?.content || '').trim();
+  const stripHtml=(html)=>html
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi,' ')
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi,' ')
+    .replace(/<noscript[^>]*>[\s\S]*?<\/noscript>/gi,' ')
+    .replace(/<[^>]+>/g,' ')
+    .replace(/&nbsp;/g,' ')
+    .replace(/&amp;/g,'&')
+    .replace(/&lt;/g,'<')
+    .replace(/&gt;/g,'>')
+    .replace(/&#39;/g,"'")
+    .replace(/&quot;/g,'"')
+    .replace(/\s+/g,' ')
+    .trim();
 
-    if(!text || text === 'CANNOTFETCH' || text.length < 40){
-      // Fallback: try corsproxy.io which is more reliable than allorigins
-      status.textContent = 'Trying fallback method...';
-      const proxyRes = await fetch('https://corsproxy.io/?' + encodeURIComponent(url));
-      if(!proxyRes.ok) throw new Error('Could not read this URL. Paste the content manually instead.');
-      const rawHtml = await proxyRes.text();
-      const stripped = rawHtml
-        .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
-        .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
-        .replace(/<[^>]+>/g, ' ')
-        .replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>')
-        .replace(/\s+/g, ' ').trim().slice(0, 6000);
-      if(!stripped || stripped.length < 40) throw new Error('Could not extract content. Paste manually instead.');
-      textarea.value = stripped;
-    } else {
-      textarea.value = text;
+  const readerUrls=[
+    'https://r.jina.ai/http://r.jina.ai/http://' + url.replace(/^https?:\/\//,''),
+    'https://r.jina.ai/http://' + url.replace(/^https?:\/\//,''),
+    'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
+    'https://corsproxy.io/?' + encodeURIComponent(url)
+  ];
+
+  let lastErr='';
+  for(const reader of readerUrls){
+    try{
+      const res=await fetch(reader,{method:'GET'});
+      if(!res.ok) throw new Error('Reader returned '+res.status);
+      let txt=await res.text();
+      txt=stripHtml(txt).slice(0,12000);
+      if(txt && txt.length>120){
+        textarea.value=txt;
+        const nameField=document.getElementById('sourceName');
+        if(!nameField.value.trim()){
+          try{nameField.value=new URL(url).hostname.replace('www.','');}catch(e){}
+        }
+        status.style.color='var(--success)';
+        status.textContent='✓ Loaded '+txt.length.toLocaleString()+' characters. Review, clean if needed, then generate.';
+        btn.textContent='Fetch URL';
+        btn.disabled=false;
+        return;
+      }
+      lastErr='Reader produced too little text.';
+    }catch(err){
+      lastErr=err.message;
     }
-
-    const nameField = document.getElementById('sourceName');
-    if(!nameField.value.trim()){
-      try { nameField.value = new URL(url).hostname.replace('www.',''); } catch(e){}
-    }
-    status.style.color = 'var(--success)';
-    status.textContent = '✓ Loaded — ' + textarea.value.length.toLocaleString() + ' characters. Review then generate.';
-
-  } catch(err) {
-    status.style.color = 'var(--danger)';
-    status.textContent = '✗ ' + err.message;
-  } finally {
-    btn.textContent = 'Fetch URL';
-    btn.disabled = false;
   }
+
+  status.style.color='var(--danger)';
+  status.textContent='✗ Could not fetch this page automatically. Many sites block readers. Open the link, copy the article/transcript manually, and paste it into the notes box.';
+  btn.textContent='Fetch URL';
+  btn.disabled=false;
 }
 
 
@@ -1119,60 +1106,32 @@ function closeWeeklyModal(){document.getElementById('weeklyModal').classList.rem
 async function generateWeeklyCampaign(){
   const source=document.getElementById('sourceText').value.trim();
   const name=document.getElementById('sourceName').value.trim()||'source';
-  const brand=data.brand;
   const modal=document.getElementById('weeklyModal');
   const body=document.getElementById('weeklyModalBody');
   const title=document.getElementById('weeklyModalTitle');
   title.textContent='Generating your campaign...';
-  body.innerHTML='<div style="text-align:center;padding:60px 0;color:var(--muted);font-size:14px"><div style="font-size:32px;margin-bottom:12px">⏳</div>Building your weekly campaign plan...</div>';
+  body.innerHTML='<div style="text-align:center;padding:60px 0;color:var(--muted);font-size:14px"><div style="font-size:32px;margin-bottom:12px">⏳</div>Building your weekly campaign plan through Supabase...</div>';
   modal.classList.add('show');
 
-  const prompt=`You are The Lead Boss content strategist for Medicare agency outreach. Build a complete 5-day social media campaign plan.
+  const payload={
+    mode:'campaign',
+    brand:data.brand,
+    source:{name,platform:val('sourcePlatform')||'Weekly Campaign',link:val('sourceLink'),text:source||'General Medicare live transfer agency growth',visual:''},
+    images:uploadCache.source.map(x=>({name:x.name,type:x.type,dataUrl:x.dataUrl}))
+  };
 
-BRAND: ${brand.company}
-CORE MESSAGE: ${brand.core}
-OFFER: ${brand.offer}
-ICP: ${brand.icp}
-TONE: ${brand.tone}
-GUARDRAILS: ${brand.avoid}
-SOURCE/TOPIC: ${source||'General Medicare live transfer agency growth'}
-SOURCE NAME: ${name}
-
-Respond ONLY with a JSON object. No preamble. No markdown. No backticks. The object must have this exact shape:
-{
-  "theme": "One sentence campaign theme",
-  "goal": "What this week's campaign is designed to achieve",
-  "days": [
-    {
-      "day": "Monday",
-      "platform": "LinkedIn",
-      "type": "Authority Post",
-      "hook": "Opening line that stops the scroll",
-      "body": "Full post body, 3-5 sentences, agency-owner focused",
-      "cta": "Specific call to action",
-      "tip": "One tactical note for Aima when posting this"
+  try{
+    const ai=await callAI('campaign', payload);
+    // If the Edge Function returns normal assets instead of campaign JSON, show them as a readable generated bucket inside the modal.
+    if(ai.days && Array.isArray(ai.days)){
+      renderWeeklyCampaign(ai);
+      return;
     }
-  ],
-  "dm_script": "A 2-sentence DM to send to warm leads this week based on the campaign theme",
-  "comment_angle": "The comment marketing angle to use this week in Facebook/LinkedIn groups"
-}
-Generate exactly 5 day objects (Mon–Fri), varying platforms across LinkedIn, Facebook, Instagram, and using types like Authority Post, Carousel, Reel Script, Engagement Poll, Story Post.`;
-
-  try {
-    const res = await fetch('https://api.openai.com/v1/chat/completions', {
-      method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+getApiKey()},
-      body:JSON.stringify({model:'gpt-4o',max_tokens:1000,messages:[{role:'user',content:prompt}]})
-    });
-    const d = await res.json();
-    if(d.error) throw new Error(d.error.message||JSON.stringify(d.error));
-    const raw = d.choices?.[0]?.message?.content||'';
-    let plan;
-    try { plan = JSON.parse(raw.replace(/```json|```/g,'').trim()); }
-    catch(e){ throw new Error('Could not parse AI response. Raw: '+raw.slice(0,300)); }
-    renderWeeklyCampaign(plan);
-  } catch(err) {
-    body.innerHTML='<div style="background:var(--blush);border:1px solid var(--blush2);border-radius:18px;padding:20px;color:var(--rose-dark)"><b>Error: </b>'+escapeHtml(err.message)+'<br><br><span style="font-size:13px;color:var(--muted)">Make sure your OpenAI API key is saved in Settings and is valid.</span></div>';
+    const assets=ai.assets || (ai.raw ? [{title:'Generated Campaign',content:ai.raw}] : []);
+    title.textContent='Weekly Campaign Plan';
+    body.innerHTML=assets.map((a,i)=>`<div class="asset-card open" style="margin-bottom:10px">${assetCardHTML(a.title||('Asset '+(i+1)), normalizeAssetContent(a.content||a), i)}</div>`).join('');
+  }catch(err){
+    body.innerHTML='<div style="background:var(--blush);border:1px solid var(--blush2);border-radius:18px;padding:20px;color:var(--rose-dark)"><b>Error: </b>'+escapeHtml(err.message)+'<br><br><span style="font-size:13px;color:var(--muted)">OpenAI key must be stored in Supabase Secrets as OPENAI_API_KEY.</span></div>';
     title.textContent='Weekly Campaign Plan';
   }
 }
