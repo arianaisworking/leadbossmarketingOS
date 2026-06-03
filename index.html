@@ -495,7 +495,7 @@ button,input,textarea,select{font:inherit}a,button,.tab-btn,.btn,.asset-card-hea
 
 <script>
 const LS='tlb_marketing_os_v2';
-const defaultData={calendar:[],research:[],packs:[],stories:[],directory:[],mission:{},settings:{supabaseUrl:'',supabaseAnonKey:'',functionName:'generate-content',cloudSync:true},focusTasks:[{text:'1 hour comment marketing: Facebook, LinkedIn, Reddit',done:false},{text:'Keep content focused on agency owners, not consumers',done:false},{text:'Save strong questions/objections into Story Bank',done:false}],brand:{company:'The Lead Boss',email:'ariana@theleadboss.com',core:'Your agents sell. We deliver opportunities.',offer:'Premium Medicare live transfers, lead generation support, agency growth consulting, pilot programs, and scalable daily volume for agencies that need consistent conversations.',icp:'Medicare agencies, FMOs, IMOs, insurance organizations, and call centers with multiple licensed agents, active lead budgets, and capacity for 50–120+ live transfers per day.',tone:'Bright, premium, confident, helpful, agency-focused, compliant, clear, growth-minded, not spammy, not desperate.',avoid:'Avoid: cheap leads, guaranteed sales, unrealistic claims, aggressive compliance claims, spam language, copying competitor wording, pretending to be a customer if that is not true. For Reddit/Facebook, be transparent and useful; mention The Lead Boss softly only where natural.'}};
+const defaultData={calendar:[],research:[],packs:[],stories:[],directory:[],mission:{},settings:{supabaseUrl:'https://zjabbqdbguufkndqwjru.supabase.co',supabaseAnonKey:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqYWJicWRiZ3V1ZmtuZHF3anJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0OTA1NDgsImV4cCI6MjA5NjA2NjU0OH0.yexouM-hc1ZamPsl0fTBbXUhjFGB79n54kJMTck1QrE',functionName:'generate-content',cloudSync:true,workerUrl:'https://leadbossai.arianaisworking.workers.dev'},focusTasks:[{text:'1 hour comment marketing: Facebook, LinkedIn, Reddit',done:false},{text:'Keep content focused on agency owners, not consumers',done:false},{text:'Save strong questions/objections into Story Bank',done:false}],brand:{company:'The Lead Boss',email:'ariana@theleadboss.com',core:'Your agents sell. We deliver opportunities.',offer:'Premium Medicare live transfers, lead generation support, agency growth consulting, pilot programs, and scalable daily volume for agencies that need consistent conversations.',icp:'Medicare agencies, FMOs, IMOs, insurance organizations, and call centers with multiple licensed agents, active lead budgets, and capacity for 50–120+ live transfers per day.',tone:'Bright, premium, confident, helpful, agency-focused, compliant, clear, growth-minded, not spammy, not desperate.',avoid:'Avoid: cheap leads, guaranteed sales, unrealistic claims, aggressive compliance claims, spam language, copying competitor wording, pretending to be a customer if that is not true. For Reddit/Facebook, be transparent and useful; mention The Lead Boss softly only where natural.'}};
 let data=load();let calendar;
 let uploadCache={source:[],story:[],comment:[]};
 function load(){try{return {...defaultData,...JSON.parse(localStorage.getItem(LS)||'{}')}}catch(e){return defaultData}}
@@ -706,14 +706,12 @@ async function callAI(mode, overridePayload){
 
 function getSupabaseRestBase(){
   const st=data.settings||{};
-  const base=(st.supabaseUrl||'').trim().replace(/\/+$/,'');
-  if(!base) throw new Error('Supabase Project URL is missing.');
-  if(!st.supabaseAnonKey) throw new Error('Supabase anon key is missing.');
-  return base;
+  return (st.supabaseUrl||'https://zjabbqdbguufkndqwjru.supabase.co').trim().replace(/\/+$/,'');
 }
 function cloudHeaders(){
   const st=data.settings||{};
-  return {'Content-Type':'application/json','apikey':st.supabaseAnonKey,'Authorization':'Bearer '+st.supabaseAnonKey};
+  const key=st.supabaseAnonKey||'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqYWJicWRiZ3V1ZmtuZHF3anJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0OTA1NDgsImV4cCI6MjA5NjA2NjU0OH0.yexouM-hc1ZamPsl0fTBbXUhjFGB79n54kJMTck1QrE';
+  return {'Content-Type':'application/json','apikey':key,'Authorization':'Bearer '+key};
 }
 function cloudPayload(){
   return {
@@ -1047,10 +1045,10 @@ function fillBrand(){
   document.getElementById('brandICP').value=b.icp||'';
   document.getElementById('brandTone').value=b.tone||'';
   document.getElementById('brandAvoid').value=b.avoid||'';
-  document.getElementById('setSupabaseUrl').value=(data.settings||{}).supabaseUrl||'';
-  document.getElementById('setSupabaseAnon').value=(data.settings||{}).supabaseAnonKey||'';
+  document.getElementById('setSupabaseUrl').value=(data.settings||{}).supabaseUrl||'https://zjabbqdbguufkndqwjru.supabase.co';
+  document.getElementById('setSupabaseAnon').value=(data.settings||{}).supabaseAnonKey||'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqYWJicWRiZ3V1ZmtuZHF3anJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0OTA1NDgsImV4cCI6MjA5NjA2NjU0OH0.yexouM-hc1ZamPsl0fTBbXUhjFGB79n54kJMTck1QrE';
   document.getElementById('setFunctionName').value=(data.settings||{}).functionName||'generate-content';
-  const wEl=document.getElementById('setWorkerUrl');if(wEl) wEl.value=(data.settings||{}).workerUrl||localStorage.getItem('tlb_worker_url')||'';
+  const wEl=document.getElementById('setWorkerUrl');if(wEl) wEl.value=(data.settings||{}).workerUrl||localStorage.getItem('tlb_worker_url')||getWorkerUrl();
   // cloudSync auto-determined from credentials — no checkbox needed
   // Show warning if brand is empty
   const isEmpty=!b.company&&!b.offer&&!b.icp;
@@ -1071,16 +1069,13 @@ function saveWorkerUrl(){
   setTimeout(()=>{btn.textContent=orig;btn.style.background='';},1800);
 }
 function saveSettings(){
-  const url=val('setSupabaseUrl'), key=val('setSupabaseAnonKey')||val('setSupabaseAnon');
-  data.settings={...(data.settings||{}),
-    supabaseUrl:url,
-    supabaseAnonKey:key,
-    functionName:val('setFunctionName')||'generate-content',
-    cloudSync:!!(url&&key)
-  };
+  const url=val('setSupabaseUrl')||'https://zjabbqdbguufkndqwjru.supabase.co';
+  const key=val('setSupabaseAnon')||val('setSupabaseAnonKey')||'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqYWJicWRiZ3V1ZmtuZHF3anJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0OTA1NDgsImV4cCI6MjA5NjA2NjU0OH0.yexouM-hc1ZamPsl0fTBbXUhjFGB79n54kJMTck1QrE';
+  const wUrl=val('setWorkerUrl')||'https://leadbossai.arianaisworking.workers.dev';
+  data.settings={...(data.settings||{}),supabaseUrl:url,supabaseAnonKey:key,functionName:val('setFunctionName')||'generate-content',cloudSync:true,workerUrl:wUrl};
   save();
   const el=document.getElementById('cloudSyncStatus');
-  if(el) el.textContent=(url&&key)?'✓ Shared memory active — auto-saves every change.':'No Supabase credentials — using local browser memory.';
+  if(el) el.textContent='✓ Shared memory active — auto-saves every change.';
 }
 async function testBackendConnection(){
   const workerUrl=getWorkerUrl();
