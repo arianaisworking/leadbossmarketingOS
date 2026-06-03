@@ -382,9 +382,17 @@ button,input,textarea,select{font:inherit}a,button,.tab-btn,.btn,.asset-card-hea
             <div><p style="margin:0;font-size:13px;color:var(--muted)">The OpenAI API key stays inside Supabase Secrets as OPENAI_API_KEY — never paste it here.</p></div>
             <button class="btn gold small" onclick="saveSettings()">Save</button>
           </div>
-          <div class="sop" style="margin-bottom:16px"><b>OpenAI is connected through Supabase Secrets.</b><br>The dashboard never stores or sees the OpenAI API key. Add/replace it only in Supabase → Edge Functions → Secrets as <code>OPENAI_API_KEY</code>.</div>
+          <div class="sop" style="margin-bottom:16px"><b>OpenAI runs through your Cloudflare Worker.</b><br>Your API key stays safely inside Cloudflare environment variables — never visible here. Paste your Worker URL above.</div>
           <div class="row3">
-            <div><label>Supabase Project URL <span style="font-weight:400;text-transform:none;letter-spacing:0">(required)</span></label><input id="setSupabaseUrl" placeholder="https://xxxx.supabase.co"></div>
+            <div style="grid-column:span 3;background:linear-gradient(135deg,#fff8fb,#fff);border:1px solid var(--blush2);border-radius:14px;padding:14px 16px;margin-bottom:4px">
+              <label style="color:var(--rose-dark)">Cloudflare Worker URL <span style="font-weight:400;text-transform:none;letter-spacing:0">(required for all AI)</span></label>
+              <div style="display:flex;gap:8px;margin-top:6px">
+                <input id="setWorkerUrl" placeholder="https://tlb-ai.yourname.workers.dev" style="flex:1">
+                <button class="btn blush small" onclick="saveWorkerUrl()">Save</button>
+              </div>
+              <p class="mini-note" style="margin-top:6px">Your OpenAI key stays inside Cloudflare — never visible here. See worker.js for setup.</p>
+            </div>
+            <div><label>Supabase Project URL <span style="font-weight:400;text-transform:none;letter-spacing:0">(for shared memory)</span></label><input id="setSupabaseUrl" placeholder="https://xxxx.supabase.co"></div>
             <div><label>Supabase Anon Key <span style="font-weight:400;text-transform:none;letter-spacing:0">(required)</span></label><input id="setSupabaseAnon" placeholder="eyJ..."></div>
             <div><label>Function Name <span style="font-weight:400;text-transform:none;letter-spacing:0">(required)</span></label><input id="setFunctionName" placeholder="generate-content"></div>
           </div>
@@ -639,30 +647,68 @@ Keep it premium, useful, agency-owner focused, authentic, and visually different
 }
 function buildPayload(mode){return {mode,brand:data.brand,source:{name:val('sourceName')||'Untitled Source',platform:val('sourcePlatform'),link:val('sourceLink'),text:val('sourceText')},images:uploadCache.source.map(x=>({name:x.name,type:x.type,dataUrl:x.dataUrl}))}}
 
-function getFunctionUrl(){
-  const st=data.settings||{};
-  const base=(st.supabaseUrl||'').trim().replace(/\/+$/,'');
-  const fn=(st.functionName||'generate-content').trim().replace(/^\/+|\/+$/g,'');
-  if(!base) throw new Error('Supabase Project URL is missing. Go to Settings → Backend Connection.');
-  if(!st.supabaseAnonKey) throw new Error('Supabase anon key is missing. Go to Settings → Backend Connection.');
-  return base + '/functions/v1/' + fn;
+function getWorkerUrl(){
+  return (data.settings||{}).workerUrl||localStorage.getItem('tlb_worker_url')||'https://leadbossai.arianaisworking.workers.dev';
 }
 async function callAI(mode, overridePayload){
-  const st=data.settings||{};
+  const workerUrl = getWorkerUrl();
+  if(!workerUrl) throw new Error('No Worker URL set. Go to ⚙ Settings → Backend Connection and paste your Cloudflare Worker URL.');
   const payload = overridePayload || buildPayload(mode);
-  const res = await fetch(getFunctionUrl(), {
+
+  // Build the OpenAI prompt from the payload
+  const brand = payload.brand || {};
+  const source = payload.source || {};
+  const images = (payload.images||[]).filter(x=>x.dataUrl);
+
+  const systemPrompt = `You are The Lead Boss AI content strategist.
+Brand: ${brand.company||'The Lead Boss'}
+Core Message: ${brand.core||''}
+Offer: ${brand.offer||''}
+ICP: ${brand.icp||''}
+Tone: ${brand.tone||''}
+Guardrails: ${brand.avoid||''}
+Mode: ${mode}
+Source Name: ${source.name||''}
+Platform: ${source.platform||''}
+Source Text: ${source.text||''}`;
+
+  const modeInstructions = {
+    content: `Generate a full content pack. Respond ONLY with JSON: {"assets":[{"title":"Asset Name","content":"Full content"}]}. Generate these assets: AI Photo Analysis, Original Lead Boss Angle, LinkedIn Authority Post, Facebook Post, Carousel Slides — ChatGPT Image Prompts, Reel / Short Script, YouTube Short, Industry Insight, Comment Question, Blog Outline, ChatGPT Image Prompt, ElevenLabs Voice Prompt, HeyGen Avatar Prompt, Calendar Suggestions.`,
+    comments: `Generate comment marketing replies. Respond ONLY with JSON: {"assets":[{"title":"Voice/Tone Name","content":"The comment text"}]}. Include: The Lead Boss company voice, Ariana founder voice, Luisa customer voice (if applicable), Reddit educational voice. Keep natural, not spammy, platform-appropriate.`,
+    campaign: `Generate a full 5-day weekly campaign plan. Respond ONLY with JSON: {"theme":"Campaign theme","goal":"What this achieves","days":[{"day":"Monday","platform":"LinkedIn","type":"Authority Post","hook":"Opening line","body":"Full post body","cta":"Call to action","tip":"Posting tip for Aima"}],"dm_script":"2-sentence DM","comment_angle":"Comment marketing angle for the week"}`,
+    analyze: `Analyze the uploaded images and source. Respond ONLY with JSON: {"assets":[{"title":"Asset Name","content":"Analysis or generated content"}]}.`,
+  };
+
+  const userContent = images.length
+    ? [
+        ...images.map(img => ({type:'image_url', image_url:{url: img.dataUrl}})),
+        {type:'text', text: systemPrompt + '
+
+' + (modeInstructions[mode]||modeInstructions.content)}
+      ]
+    : systemPrompt + '
+
+' + (modeInstructions[mode]||modeInstructions.content);
+
+  const res = await fetch(workerUrl, {
     method:'POST',
-    headers:{
-      'Content-Type':'application/json',
-      'apikey':st.supabaseAnonKey,
-      'Authorization':'Bearer '+st.supabaseAnonKey
-    },
-    body:JSON.stringify(payload)
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      model:'gpt-4o',
+      max_tokens:1500,
+      messages:[{role:'user', content: userContent}]
+    })
   });
+
   let json={};
-  try{ json=await res.json(); }catch(e){ throw new Error('AI function returned an unreadable response.'); }
-  if(!res.ok || json.error) throw new Error(json.error || ('AI function failed with status '+res.status));
-  return json;
+  try{ json=await res.json(); }catch(e){ throw new Error('Worker returned an unreadable response.'); }
+  if(!res.ok || json.error) throw new Error((json.error?.message||json.error) || ('Worker failed: '+res.status));
+
+  const raw = json.choices?.[0]?.message?.content||'';
+  let parsed;
+  try{ parsed = JSON.parse(raw.replace(/^```json|^```|```$/gm,'').trim()); }
+  catch(e){ return {assets:[{title:'AI Output', content:raw}]}; }
+  return parsed;
 }
 
 function getSupabaseRestBase(){
@@ -747,7 +793,7 @@ async function generatePack(mode){
   const pack={id:Date.now()+'',date:new Date().toLocaleString(),source:val('sourceName')||'Untitled Source',prompt,assets:null};
   const researchItem={id:Date.now()+'r',date:new Date().toLocaleString(),source:pack.source,platform:val('sourcePlatform'),link:val('sourceLink'),text:val('sourceText').slice(0,500),photos:uploadCache.source.map(x=>({name:x.name,type:x.type,dataUrl:x.dataUrl}))};
   const box=document.getElementById('assetBucket');
-  box.innerHTML='<div style="text-align:center;padding:50px 20px;color:var(--muted);font-size:14px"><div style="font-size:36px;margin-bottom:12px">⏳</div>Generating your content pack through Supabase...</div>';
+  box.innerHTML='<div style="text-align:center;padding:50px 20px;color:var(--muted);font-size:14px"><div style="font-size:36px;margin-bottom:12px">⏳</div>Generating your content pack...</div>';
   try{
     const ai=await callAI(mode);
     const assets=ai.assets || (ai.raw ? [{title:'Generated Output',content:ai.raw}] : []);
@@ -755,7 +801,7 @@ async function generatePack(mode){
     data.packs.unshift(pack);data.research.unshift(researchItem);save();renderAssetsFromAI(assets);renderResearch();flashAssetsSaved();setTimeout(()=>toggleAssetCard(0),50);
   }catch(err){
     data.packs.unshift(pack);data.research.unshift(researchItem);save();renderResearch();
-    box.innerHTML='<div style="background:var(--blush);border:1px solid var(--blush2);border-radius:18px;padding:20px;color:var(--rose-dark)"><b>Could not generate: </b>'+escapeHtml(err.message)+'<br><br><span class="mini-note">Check Settings → Backend Connection. OpenAI key should only be saved in Supabase Secrets as OPENAI_API_KEY.</span></div>';
+    box.innerHTML='<div style="background:var(--blush);border:1px solid var(--blush2);border-radius:18px;padding:20px;color:var(--rose-dark)"><b>Could not generate: </b>'+escapeHtml(err.message)+'<br><br><span class="mini-note">Check Settings → Backend Connection and make sure your Worker URL is saved.</span></div>';
   }
 }
 function copyMasterPrompt(mode){showModal(buildPrompt(mode))}
@@ -930,7 +976,7 @@ async function runStoryGenerate(story){
   const outputBucket=document.getElementById('storyOutputBucket');
   const outputTitle=document.getElementById('storyOutputTitle');
   outputTitle.textContent='Generating from: '+story.title;
-  outputBucket.innerHTML='<div style="text-align:center;padding:40px 20px;color:var(--muted);font-size:14px"><div style="font-size:32px;margin-bottom:10px">⏳</div>Reading screenshots + building content through Supabase...</div>';
+  outputBucket.innerHTML='<div style="text-align:center;padding:40px 20px;color:var(--muted);font-size:14px"><div style="font-size:32px;margin-bottom:10px">⏳</div>Reading screenshots + building content...</div>';
   outputCard.style.display='block';
   outputCard.scrollIntoView({behavior:'smooth',block:'start'});
   const storyText=`Pain Point Type: ${story.type}
@@ -963,7 +1009,7 @@ async function generateComments(){
     alert('Paste a thread/post/question or upload a screenshot first.');
     return;
   }
-  box.innerHTML='<div class="comment-card" style="grid-column:1/-1;text-align:center;padding:35px;color:var(--muted)"><div style="font-size:30px;margin-bottom:10px">⏳</div>Generating AI comment replies through Supabase...</div>';
+  box.innerHTML='<div class="comment-card" style="grid-column:1/-1;text-align:center;padding:35px;color:var(--muted)"><div style="font-size:30px;margin-bottom:10px">⏳</div>Generating comment replies...</div>';
   const payload={
     mode:'comments',
     brand:data.brand,
@@ -981,7 +1027,7 @@ async function generateComments(){
     const assets=ai.assets || (ai.raw ? [{title:'AI Comment Bank',content:ai.raw}] : []);
     renderCommentAssets(assets);
   }catch(err){
-    box.innerHTML='<div class="comment-card" style="grid-column:1/-1;color:var(--rose-dark);background:var(--blush)"><h4>Comment AI failed</h4><textarea>'+escapeHtml(err.message)+'\n\nCheck Settings → Backend Connection and make sure the Supabase URL, anon key, and function name are saved.</textarea></div>';
+    box.innerHTML='<div class="comment-card" style="grid-column:1/-1;color:var(--rose-dark);background:var(--blush)"><h4>Comment AI failed</h4><textarea>'+escapeHtml(err.message)+'\n\nCheck Settings → Backend Connection and make sure your Worker URL is saved.</textarea></div>';
   }
 }
 function renderCommentAssets(assets){
@@ -1011,12 +1057,25 @@ function fillBrand(){
   document.getElementById('setSupabaseUrl').value=(data.settings||{}).supabaseUrl||'';
   document.getElementById('setSupabaseAnon').value=(data.settings||{}).supabaseAnonKey||'';
   document.getElementById('setFunctionName').value=(data.settings||{}).functionName||'generate-content';
+  const wEl=document.getElementById('setWorkerUrl');if(wEl) wEl.value=(data.settings||{}).workerUrl||localStorage.getItem('tlb_worker_url')||'';
   // cloudSync auto-determined from credentials — no checkbox needed
   // Show warning if brand is empty
   const isEmpty=!b.company&&!b.offer&&!b.icp;
   const notice=document.getElementById('brandNotice');
   if(notice) notice.style.display=isEmpty?'flex':'none';
   if(isEmpty) toggleAccordion('accBrand');
+}
+function saveWorkerUrl(){
+  const url=document.getElementById('setWorkerUrl').value.trim();
+  if(!url) return alert('Paste your Cloudflare Worker URL first.');
+  if(!data.settings) data.settings={};
+  data.settings.workerUrl=url;
+  localStorage.setItem('tlb_worker_url',url);
+  save();
+  const btn=event.target;
+  const orig=btn.textContent;
+  btn.textContent='✓ Saved!';btn.style.background='var(--success)';
+  setTimeout(()=>{btn.textContent=orig;btn.style.background='';},1800);
 }
 function saveSettings(){
   const url=val('setSupabaseUrl'), key=val('setSupabaseAnonKey')||val('setSupabaseAnon');
@@ -1030,7 +1089,19 @@ function saveSettings(){
   const el=document.getElementById('cloudSyncStatus');
   if(el) el.textContent=(url&&key)?'✓ Shared memory active — auto-saves every change.':'No Supabase credentials — using local browser memory.';
 }
-async function testBackendConnection(){try{const st=data.settings||{};if(!st.supabaseUrl||!st.supabaseAnonKey) return alert('Save Supabase URL and anon key first.');const oldName=document.getElementById('sourceName').value;const oldText=document.getElementById('sourceText').value;document.getElementById('sourceName').value='Backend Test';document.getElementById('sourceText').value='Create a short test content pack about Medicare live transfers for agency owners.';const ai=await callAI('content');showModal('AI connection successful. Response preview:\n\n'+JSON.stringify(ai,null,2).slice(0,2500));document.getElementById('sourceName').value=oldName;document.getElementById('sourceText').value=oldText;}catch(err){showModal('AI connection failed:\n\n'+err.message+'\n\nChecklist:\n1. Is OPENAI_API_KEY saved in Supabase Secrets?\n2. Is generate-content deployed?\n3. Is Supabase URL correct?\n4. Is anon key correct?')}}
+async function testBackendConnection(){
+  const workerUrl=getWorkerUrl();
+  if(!workerUrl) return alert('Save your Worker URL in Settings first.');
+  try{
+    const res=await fetch(workerUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'gpt-4o',max_tokens:50,messages:[{role:'user',content:'Reply with: CONNECTED'}]})});
+    const d=await res.json();
+    if(d.error) throw new Error(d.error.message||JSON.stringify(d.error));
+    const reply=d.choices?.[0]?.message?.content||'';
+    showModal('✓ Worker connection successful!\n\nOpenAI replied: '+reply);
+  }catch(err){
+    showModal('Connection failed:\n\n'+err.message+'\n\nChecklist:\n1. Is OPENAI_API_KEY set in your Cloudflare Worker environment variables?\n2. Is your Worker deployed?\n3. Is the Worker URL correct?');
+  }
+}
 const CHANNEL_PRESETS=[
   {name:'Meta Business Suite', icon:'📘', url:'https://business.facebook.com', notes:'Schedule Facebook and Instagram posts/reels. Save final captions in the calendar item before scheduling.'},
   {name:'LinkedIn Page', icon:'💼', url:'https://www.linkedin.com/company/', notes:'Schedule authority posts and articles. Use agency-owner tone, not consumer tone.'},
@@ -1200,7 +1271,7 @@ async function generateWeeklyCampaign(){
   const body=document.getElementById('weeklyModalBody');
   const title=document.getElementById('weeklyModalTitle');
   title.textContent='Generating your campaign...';
-  body.innerHTML='<div style="text-align:center;padding:60px 0;color:var(--muted);font-size:14px"><div style="font-size:32px;margin-bottom:12px">⏳</div>Building your weekly campaign plan through Supabase...</div>';
+  body.innerHTML='<div style="text-align:center;padding:60px 0;color:var(--muted);font-size:14px"><div style="font-size:32px;margin-bottom:12px">⏳</div>Building your weekly campaign plan...</div>';
   modal.classList.add('show');
   const payload={
     mode:'campaign',
@@ -1215,7 +1286,7 @@ async function generateWeeklyCampaign(){
     title.textContent='Weekly Campaign Plan';
     body.innerHTML=assets.map((a,i)=>assetCardHTML(a.title||('Asset '+(i+1)), normalizeAssetContent(a.content||a), i)).join('');
   }catch(err){
-    body.innerHTML='<div style="background:var(--blush);border:1px solid var(--blush2);border-radius:18px;padding:20px;color:var(--rose-dark)"><b>Error: </b>'+escapeHtml(err.message)+'<br><br><span style="font-size:13px;color:var(--muted)">OpenAI key must be stored in Supabase Secrets as OPENAI_API_KEY.</span></div>';
+    body.innerHTML='<div style="background:var(--blush);border:1px solid var(--blush2);border-radius:18px;padding:20px;color:var(--rose-dark)"><b>Error: </b>'+escapeHtml(err.message)+'<br><br><span style="font-size:13px;color:var(--muted)">Make sure your Worker URL is saved in Settings → Backend Connection.</span></div>';
     title.textContent='Weekly Campaign Plan';
   }
 }
