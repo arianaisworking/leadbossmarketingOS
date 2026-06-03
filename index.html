@@ -1053,45 +1053,56 @@ async function fetchUrl(){
 
   if(!url) return status.textContent = 'Paste a URL first.';
   if(!/^https?:\/\//i.test(url)) return status.textContent = 'URL must start with http:// or https://';
+  if(!getApiKey()) return status.textContent = '✗ Add your OpenAI API key in Settings first.';
 
-  btn.textContent = 'Fetching...';
+  btn.textContent = 'Reading...';
   btn.disabled = true;
   status.style.color = 'var(--muted)';
-  status.textContent = 'Reading page...';
+  status.textContent = 'Asking GPT to read the page...';
 
   try {
-    // Fetch via CORS proxy, then clean up with OpenAI
-    const proxyRes = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(url));
-    const proxyData = await proxyRes.json();
-    const rawHtml = proxyData.contents || '';
-    const stripped = rawHtml.replace(/<style[^>]*>[\s\S]*?<\/style>/gi,'')
-      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi,'')
-      .replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim().slice(0,6000);
-    if(!stripped || stripped.length < 40) throw new Error('Could not read this URL. Try a public article or paste manually.');
-    const aiRes = await fetch('https://api.openai.com/v1/chat/completions', {
+    // Ask GPT-4o to fetch and summarize the URL using its browsing knowledge
+    // For pages it can't browse, it will say so clearly
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {'Content-Type':'application/json','Authorization':'Bearer '+getApiKey()},
       body: JSON.stringify({
-        model: 'gpt-4o', max_tokens: 1000,
-        messages: [{role:'user',content:'Extract and return ONLY the main readable content from this page — article body, post text, or key info. Remove nav, ads, footers. Plain text only, no commentary.\n\n'+stripped}]
+        model: 'gpt-4o',
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: 'I need the main text content from this URL for my content research tool. Please visit this URL and return ONLY the core readable content — the article text, post body, captions, or main copy. Strip out navigation, ads, headers, footers. Return plain text only, no commentary, no formatting.\n\nIf you cannot access the URL, just return the word CANNOTFETCH and nothing else.\n\nURL: ' + url
+        }]
       })
     });
-    const aiData = await aiRes.json();
-    if(aiData.error) throw new Error(aiData.error.message||JSON.stringify(aiData.error));
-    const text = aiData.choices?.[0]?.message?.content?.trim() || '';
+    const d = await res.json();
+    if(d.error) throw new Error(d.error.message || JSON.stringify(d.error));
+    const text = (d.choices?.[0]?.message?.content || '').trim();
 
-    if(!text || text.length < 40) throw new Error('Could not extract readable content from this URL. Try a public article or paste manually.');
+    if(!text || text === 'CANNOTFETCH' || text.length < 40){
+      // Fallback: try corsproxy.io which is more reliable than allorigins
+      status.textContent = 'Trying fallback method...';
+      const proxyRes = await fetch('https://corsproxy.io/?' + encodeURIComponent(url));
+      if(!proxyRes.ok) throw new Error('Could not read this URL. Paste the content manually instead.');
+      const rawHtml = await proxyRes.text();
+      const stripped = rawHtml
+        .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+        .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>')
+        .replace(/\s+/g, ' ').trim().slice(0, 6000);
+      if(!stripped || stripped.length < 40) throw new Error('Could not extract content. Paste manually instead.');
+      textarea.value = stripped;
+    } else {
+      textarea.value = text;
+    }
 
-    textarea.value = text;
-
-    // Auto-fill source name if empty
     const nameField = document.getElementById('sourceName');
     if(!nameField.value.trim()){
       try { nameField.value = new URL(url).hostname.replace('www.',''); } catch(e){}
     }
-
     status.style.color = 'var(--success)';
-    status.textContent = '✓ Content loaded — ' + text.length.toLocaleString() + ' characters. Review then generate.';
+    status.textContent = '✓ Loaded — ' + textarea.value.length.toLocaleString() + ' characters. Review then generate.';
 
   } catch(err) {
     status.style.color = 'var(--danger)';
