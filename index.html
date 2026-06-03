@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Lead Boss Marketing OS</title>
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+<style>
+:root{
+  --bg:#fffafa;
+  --white:#ffffff;
+  --cream:#fff7ef;
+  --blush:#ffe8ee;
+  --blush2:#f9cbd8;
+  --rose:#c65f7e;
+  --rose-dark:#8f3f5e;
+  --champagne:#d9b96f;
+  --gold:#b98a32;
+  --ink:#35242b;
+  --muted:#8b747b;
+  --line:#f1dfe5;
+  --gray:#fbf7f5;
+  --success:#5f9f78;
+  --warning:#bd8652;
+  --danger:#bf5c66;
+  --shadow:0 14px 38px rgba(95,54,68,.09);
+}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(180deg,#fff 0%,var(--bg) 42%,#fff9fb 100%);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:var(--ink)}
+button,input,textarea,select{font:inherit}
+.header{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}
+.header-inner{max-width:1440px;margin:0 auto;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;gap:18px}
+.brand{display:flex;align-items:center;gap:14px}.logo{width:46px;height:46px;border-radius:18px;background:linear-gradient(135deg,#fff,var(--blush));border:1px solid var(--line);display:grid;place-items:center;box-shadow:var(--shadow);font-size:24px}.brand h1{font-size:20px;margin:0;letter-spacing:.02em}.brand p{margin:2px 0 0;color:var(--muted);font-size:13px}.top-actions{display:flex;gap:10px;align-items:center}.pill{border:1px solid var(--line);background:var(--cream);color:var(--rose-dark);padding:9px 12px;border-radius:999px;font-size:13px;font-weight:700}.btn{border:0;border-radius:14px;background:var(--ink);color:white;padding:10px 14px;font-weight:800;cursor:pointer;box-shadow:0 10px 22px rgba(53,36,43,.14)}.btn.secondary{background:#fff;color:var(--ink);border:1px solid var(--line);box-shadow:none}.btn.gold{background:linear-gradient(135deg,var(--champagne),var(--gold));color:#fff}.btn.blush{background:linear-gradient(135deg,var(--rose),var(--rose-dark));color:#fff}.btn.small{padding:7px 10px;border-radius:10px;font-size:12px}.btn:hover{transform:translateY(-1px)}
+.layout{max-width:1440px;margin:0 auto;padding:20px 24px 40px}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 20px}.tab-btn{border:1px solid var(--line);background:white;color:var(--ink);padding:11px 14px;border-radius:999px;font-weight:800;cursor:pointer}.tab-btn.active,.tab-btn:hover{background:var(--blush);border-color:var(--blush2);color:var(--rose-dark)}
+.page{display:none}.page.active{display:block}.hero{background:linear-gradient(135deg,#fff,#fff6f8);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow);padding:26px;position:relative;overflow:hidden}.hero:after{content:"";position:absolute;right:-70px;top:-70px;width:220px;height:220px;background:radial-gradient(circle,var(--blush),transparent 72%)}.hero h2{margin:0;font-size:32px}.hero p{color:var(--muted);max-width:760px;line-height:1.55}.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px}.card{background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:24px;padding:18px;box-shadow:var(--shadow)}.span-12{grid-column:span 12}.span-8{grid-column:span 8}.span-7{grid-column:span 7}.span-6{grid-column:span 6}.span-5{grid-column:span 5}.span-4{grid-column:span 4}.span-3{grid-column:span 3}.section-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.section-title h3{margin:0;font-size:18px}.section-title p{margin:4px 0 0;color:var(--muted);font-size:13px}.metric{border-radius:20px;background:linear-gradient(180deg,#fff,var(--gray));border:1px solid var(--line);padding:16px}.metric b{font-size:26px;display:block}.metric span{color:var(--muted);font-size:13px}.mission-list{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.check{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid var(--line);background:#fff;border-radius:16px}.check input{accent-color:var(--rose);width:18px;height:18px}.progress{height:12px;background:var(--blush);border-radius:999px;overflow:hidden}.progress div{height:100%;width:0%;background:linear-gradient(90deg,var(--rose),var(--champagne));transition:.25s}label{display:block;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:12px 0 6px}input,textarea,select{width:100%;border:1px solid var(--line);border-radius:16px;background:#fff;padding:12px;color:var(--ink);outline:none}textarea{min-height:116px;resize:vertical}input:focus,textarea:focus,select:focus{border-color:var(--rose);box-shadow:0 0 0 4px rgba(198,95,126,.10)}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.asset-bucket{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:16px}.asset-card{border:1px solid var(--line);border-radius:20px;background:#fff;padding:14px;min-height:210px;display:flex;flex-direction:column}.asset-card h4{margin:0 0 8px}.asset-card textarea{border:0;background:#fff8fa;padding:10px;border-radius:14px;min-height:130px;font-size:13px;flex:1}.tag{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);border-radius:999px;background:#fff7f9;padding:5px 9px;color:var(--rose-dark);font-weight:800;font-size:12px}.list{display:grid;gap:10px}.item{border:1px solid var(--line);border-radius:18px;background:#fff;padding:14px}.item-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.item h4{margin:0 0 4px}.item p{margin:4px 0;color:var(--muted);font-size:13px;line-height:1.4}.status{padding:5px 9px;border-radius:999px;font-size:12px;font-weight:900;background:var(--blush);color:var(--rose-dark)}.fc{background:#fff;border-radius:22px;padding:12px;border:1px solid var(--line);box-shadow:var(--shadow)}.fc .fc-toolbar-title{font-size:20px!important;color:var(--ink)}.fc-button-primary{background:var(--rose)!important;border-color:var(--rose)!important;border-radius:12px!important}.fc-event{border:0!important;border-radius:10px!important;padding:2px 4px!important;background:var(--rose)!important;cursor:pointer}.fc-event.status-Idea{background:#d9b96f!important}.fc-event.status-Draft{background:#c65f7e!important}.fc-event.status-Production{background:#8f3f5e!important}.fc-event.status-Ready-to-Schedule{background:#bd8652!important}.fc-event.status-Scheduled{background:#5f9f78!important}.fc-event.status-Posted{background:#35242b!important}.calendar-form{display:grid;grid-template-columns:1.2fr .8fr .8fr .8fr .8fr auto;gap:10px;align-items:end}.mini-note{font-size:12px;color:var(--muted);line-height:1.45}.comment-bank{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.comment-card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:14px}.comment-card h4{margin:0 0 8px;color:var(--rose-dark)}.comment-card textarea{min-height:170px}.sop{background:#fff8fb;border:1px dashed var(--blush2);border-radius:18px;padding:14px}.kicker{color:var(--rose);font-weight:900;letter-spacing:.1em;text-transform:uppercase;font-size:12px}.empty{color:var(--muted);font-size:13px;padding:20px;text-align:center;border:1px dashed var(--line);border-radius:18px;background:#fff}.footer-note{margin-top:18px;color:var(--muted);font-size:12px;text-align:center}.photo-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px}.photo-tile{border:1px solid var(--line);background:#fff;border-radius:16px;padding:8px}.photo-tile img{width:100%;height:92px;object-fit:cover;border-radius:12px;display:block}.photo-tile p{font-size:11px;color:var(--muted);margin:6px 0 0;word-break:break-word}.upload-box{border:1px dashed var(--blush2);background:#fff8fb;border-radius:18px;padding:12px}.modal{display:none;position:fixed;inset:0;background:rgba(53,36,43,.22);z-index:99;align-items:center;justify-content:center;padding:18px}.modal.show{display:flex}.modal-box{background:#fff;border:1px solid var(--line);border-radius:24px;box-shadow:0 24px 70px rgba(53,36,43,.2);max-width:760px;width:100%;padding:22px}.modal-box pre{white-space:pre-wrap;background:#fff8fa;border:1px solid var(--line);border-radius:18px;padding:14px;max-height:55vh;overflow:auto;font-family:inherit;font-size:13px}
+@media(max-width:1100px){.span-8,.span-7,.span-6,.span-5,.span-4,.span-3{grid-column:span 12}.asset-bucket{grid-template-columns:repeat(2,1fr)}.calendar-form{grid-template-columns:1fr 1fr}.comment-bank{grid-template-columns:1fr}.mission-list{grid-template-columns:1fr}}
+@media(max-width:700px){.header-inner{align-items:flex-start;flex-direction:column}.layout{padding:14px}.hero h2{font-size:25px}.asset-bucket{grid-template-columns:1fr}.row,.row3{grid-template-columns:1fr}.calendar-form{grid-template-columns:1fr}.top-actions{flex-wrap:wrap}}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="header-inner">
+    <div class="brand"><div class="logo">୨୧</div><div><h1>The Lead Boss Marketing OS</h1><p>Content, comments, calendar, and authority building for Medicare agency growth.</p></div></div>
+    <div class="top-actions"><span class="pill">Manual posting • AI-assisted workflow</span><button class="btn secondary small" onclick="exportData()">Export Backup</button><button class="btn small" onclick="document.getElementById('importFile').click()">Import</button><input type="file" id="importFile" accept="application/json" style="display:none" onchange="importData(event)"></div>
+  </div>
+</header>
+<main class="layout">
+  <div class="tabs">
+    <button class="tab-btn active" data-page="dashboard">Dashboard</button>
+    <button class="tab-btn" data-page="calendar">Monthly Calendar</button>
+    <button class="tab-btn" data-page="factory">Research + Content Factory</button>
+    <button class="tab-btn" data-page="story">Story Bank</button>
+    <button class="tab-btn" data-page="community">Comment Marketing</button>
+    <button class="tab-btn" data-page="brand">Brand Brain</button>
+    <button class="tab-btn" data-page="directory">Social Directory</button>
+  </div>
+
+  <section id="dashboard" class="page active">
+    <div class="hero">
+      <div class="kicker">Daily Command Center</div>
+      <h2>Today's Mission</h2>
+      <p>Aima's job is not to “post randomly.” Her job is to create authority, distribute the message, and make The Lead Boss feel visible everywhere agency owners are looking.</p>
+    </div>
+    <br>
+    <div class="grid">
+      <div class="card span-8">
+        <div class="section-title"><div><h3>Daily Checklist</h3><p>One clear set of tasks per day.</p></div><button class="btn secondary small" onclick="resetMission()">Reset Today</button></div>
+        <div class="mission-list" id="missionList"></div>
+        <br><div class="progress"><div id="progressBar"></div></div><p class="mini-note"><b id="progressText">0%</b> complete today.</p>
+      </div>
+      <div class="card span-4">
+        <div class="section-title"><div><h3>Brand Focus</h3><p>Keep the message tight.</p></div></div>
+        <div class="metric"><span>Core Message</span><b>Your agents sell.</b><span>We deliver opportunities.</span></div><br>
+        <div class="metric"><span>Daily Distribution Goal</span><b>1 hour</b><span>Facebook, LinkedIn, Reddit engagement.</span></div>
+      </div>
+      <div class="card span-3"><div class="metric"><span>Calendar Items</span><b id="metricCalendar">0</b><span>planned posts</span></div></div>
+      <div class="card span-3"><div class="metric"><span>Research Sources</span><b id="metricResearch">0</b><span>saved inputs</span></div></div>
+      <div class="card span-3"><div class="metric"><span>Story Bank</span><b id="metricStories">0</b><span>questions/objections</span></div></div>
+      <div class="card span-3"><div class="metric"><span>Content Packs</span><b id="metricPacks">0</b><span>generated assets</span></div></div>
+    </div>
+  </section>
+
+  <section id="calendar" class="page">
+    <div class="grid">
+      <div class="card span-12">
+        <div class="section-title"><div><h3>Monthly Content Calendar</h3><p>Schedule one month ahead during the first week of each month.</p></div></div>
+        <div class="calendar-form">
+          <div><label>Topic / Title</label><input id="calTitle" placeholder="AEP readiness checklist"></div>
+          <div><label>Date</label><input id="calDate" type="date"></div>
+          <div><label>Platform</label><select id="calPlatform"><option>LinkedIn</option><option>Facebook</option><option>Instagram</option><option>YouTube</option><option>Blog</option><option>Reddit</option></select></div>
+          <div><label>Type</label><select id="calType"><option>Authority Post</option><option>Carousel</option><option>Reel/Short</option><option>Article</option><option>Comment Session</option><option>Industry Insight</option></select></div>
+          <div><label>Status</label><select id="calStatus"><option>Idea</option><option>Draft</option><option>Production</option><option>Ready to Schedule</option><option>Scheduled</option><option>Posted</option></select></div>
+          <button class="btn blush" onclick="addCalendarItem()">Add</button>
+        </div>
+        <p class="mini-note" style="margin-top:10px"><b>Microedit added:</b> Click any planned calendar item to update its status, date, platform, type, title, asset link, notes, or delete it. No more recreating posts just to move them from Idea → Draft → Scheduled → Posted.</p>
+      </div>
+      <div class="span-12"><div id="contentCalendar"></div></div>
+    </div>
+  </section>
+
+  <section id="factory" class="page">
+    <div class="hero">
+      <div class="kicker">Research + Content Factory</div>
+      <h2>Input anything. Create a full content pack.</h2>
+      <p>Paste a competitor transcript, article, caption, messy idea, or thread. The system creates authentic Lead Boss content without copying anyone.</p>
+    </div><br>
+    <div class="grid">
+      <div class="card span-5">
+        <div class="section-title"><div><h3>Source Input</h3><p>Flexible, not rigid.</p></div></div>
+        <div class="row"><div><label>Source Name</label><input id="sourceName" placeholder="GoHealth / Reddit thread / Ariana idea"></div><div><label>Platform</label><select id="sourcePlatform"><option>Competitor</option><option>LinkedIn</option><option>Facebook</option><option>Instagram</option><option>YouTube</option><option>Reddit</option><option>Article</option><option>Internal idea</option></select></div></div>
+        <label>Link</label><input id="sourceLink" placeholder="Paste URL if available">
+        <label>Transcript / Article / Notes</label><textarea id="sourceText" placeholder="Paste transcript, caption, post, article, or voice note transcript..."></textarea>
+        <label>Screenshot / Photo Notes</label><textarea id="sourceVisual" placeholder="Describe the visual, hook, comments, style, or screenshots..."></textarea>
+        <label>Upload Screenshots / Photos</label><div class="upload-box"><input id="sourcePhotos" type="file" accept="image/*" multiple onchange="handlePhotoUpload(event, 'source')"><p class="mini-note">Attach competitor screenshots, post graphics, thumbnails, comment screenshots, or article photos. These can be sent to AI when the backend is connected.</p><div id="sourcePhotoPreview" class="photo-grid"></div></div>
+        <div class="toolbar">
+          <button class="btn gold" onclick="generatePack('content')">Generate With AI</button>
+          <button class="btn secondary" onclick="generatePack('campaign')">Generate Weekly Campaign</button>
+          <button class="btn secondary" onclick="copyMasterPrompt('content')">Copy Master Prompt</button>
+          <button class="btn secondary" onclick="saveResearchOnly()">Save Source Only</button>
+        </div>
+      </div>
+      <div class="card span-7">
+        <div class="section-title"><div><h3>Generated Assets Bucket</h3><p>Copy these into ChatGPT, Canva, ElevenLabs, HeyGen, or scheduler tools.</p></div><button class="btn small" onclick="copyAllAssets()">Copy All</button></div>
+        <div class="asset-bucket" id="assetBucket"></div>
+      </div>
+      <div class="card span-12">
+        <div class="section-title"><div><h3>Saved Research Library</h3><p>Competitors, articles, Reddit threads, customer questions, and ideas all live here.</p></div><button class="btn secondary small" onclick="clearList('research')">Clear</button></div>
+        <div id="researchList" class="list"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="story" class="page">
+    <div class="grid">
+      <div class="card span-5">
+        <div class="section-title"><div><h3>Story Bank</h3><p>Save market pain points forever.</p></div></div>
+        <label>Story Type</label><select id="storyType"><option>Customer Question</option><option>Objection</option><option>Agency Pain Point</option><option>Sales Call Note</option><option>Facebook Thread</option><option>Reddit Thread</option><option>Win / Proof</option><option>Content Idea</option></select>
+        <label>Short Title</label><input id="storyTitle" placeholder="Agency owner worried about lead quality">
+        <label>Details</label><textarea id="storyDetails" placeholder="Paste the question, objection, or story here..."></textarea>
+        <label>Attach Story Screenshot / Photo</label><div class="upload-box"><input id="storyPhotos" type="file" accept="image/*" multiple onchange="handlePhotoUpload(event, 'story')"><div id="storyPhotoPreview" class="photo-grid"></div></div>
+        <div class="toolbar"><button class="btn blush" onclick="addStory()">Save Story</button><button class="btn secondary" onclick="generateFromStory()">Generate From Story</button></div>
+      </div>
+      <div class="card span-7">
+        <div class="section-title"><div><h3>Saved Stories</h3><p>These become future posts, scripts, comments, and articles.</p></div><button class="btn secondary small" onclick="clearList('stories')">Clear</button></div>
+        <div id="storyList" class="list"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="community" class="page">
+    <div class="hero"><div class="kicker">Comment Marketing Center</div><h2>Distribution is the multiplier.</h2><p>Aima should spend at least 1 hour daily leaving helpful comments, answering questions, and softly positioning The Lead Boss around agency-scale conversations.</p></div><br>
+    <div class="grid">
+      <div class="card span-5">
+        <div class="section-title"><div><h3>Generate Comment Bank</h3><p>Paste the post or thread. Get helpful replies.</p></div></div>
+        <label>Platform</label><select id="commentPlatform"><option>Facebook</option><option>LinkedIn</option><option>Reddit</option></select>
+        <label>Thread / Post / Question</label><textarea id="commentInput" placeholder="Paste the post or describe the scenario..."></textarea>
+        <label>Attach Thread Screenshot / Photo</label><div class="upload-box"><input id="commentPhotos" type="file" accept="image/*" multiple onchange="handlePhotoUpload(event, 'comment')"><div id="commentPhotoPreview" class="photo-grid"></div></div>
+        <div class="toolbar"><button class="btn gold" onclick="generateComments()">Generate Replies</button></div>
+        <br><div class="sop"><b>Daily SOP:</b><br>15 Facebook comments + 10 LinkedIn comments + 5 Reddit contributions. Be useful first. Softly mention The Lead Boss only where natural.</div>
+      </div>
+      <div class="card span-7">
+        <div class="section-title"><div><h3>Comment Buckets</h3><p>Use the right tone for the situation.</p></div><button class="btn small" onclick="copyCommentBank()">Copy Bank</button></div>
+        <div class="comment-bank" id="commentBank"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="brand" class="page">
+    <div class="grid">
+      <div class="card span-12"><div class="section-title"><div><h3>Brand Brain</h3><p>This context should be copied into AI prompts or later stored in Supabase.</p></div><button class="btn blush" onclick="saveBrand()">Save Brand Brain</button></div>
+        <div class="row3"><div><label>Company Name</label><input id="brandCompany"></div><div><label>Email</label><input id="brandEmail"></div><div><label>Core Message</label><input id="brandCore"></div></div>
+        <label>Offer</label><textarea id="brandOffer"></textarea>
+        <label>Ideal Customer Profile</label><textarea id="brandICP"></textarea>
+        <label>Tone</label><textarea id="brandTone"></textarea>
+        <label>Do Not Say / Compliance Guardrails</label><textarea id="brandAvoid"></textarea>
+        <hr style="border:0;border-top:1px solid var(--line);margin:20px 0">
+        <div class="section-title"><div><h3>Backend Settings</h3><p>Safe browser settings only. OpenAI key stays inside Supabase Edge Function secrets.</p></div><button class="btn secondary small" onclick="saveSettings()">Save Backend Settings</button></div>
+        <div class="row3"><div><label>Supabase URL</label><input id="setSupabaseUrl" placeholder="https://xxxx.supabase.co"></div><div><label>Supabase Anon Key</label><input id="setSupabaseAnon" placeholder="public anon key"></div><div><label>AI Function Name</label><input id="setFunctionName" placeholder="generate-content"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="directory" class="page">
+    <div class="grid">
+      <div class="card span-5"><div class="section-title"><div><h3>Social Directory</h3><p>Deposit links and scheduling paths here.</p></div></div>
+        <label>Link Name</label><input id="dirName" placeholder="Meta Business Suite">
+        <label>URL</label><input id="dirUrl" placeholder="https://...">
+        <label>Instructions / Login Notes / SOP</label><textarea id="dirNotes" placeholder="How to schedule, where to save files, naming conventions..."></textarea>
+        <button class="btn blush" onclick="addDirectory()">Save Link</button>
+      </div>
+      <div class="card span-7"><div class="section-title"><div><h3>Saved Links + SOPs</h3><p>Facebook, Instagram, LinkedIn, YouTube, Canva, Drive, HeyGen, ElevenLabs.</p></div><button class="btn secondary small" onclick="clearList('directory')">Clear</button></div><div id="directoryList" class="list"></div></div>
+      <div class="card span-12"><div class="section-title"><div><h3>Monthly Scheduling Rule</h3><p>Build the next month during the first week.</p></div></div><div class="sop">During the first week of every month, Aima should plan and schedule 30 days of content ahead manually in Meta Business Suite, LinkedIn, and YouTube Studio. The OS stores what goes where, what is ready, and what still needs media.</div></div>
+    </div>
+  </section>
+  <p class="footer-note">The Lead Boss Marketing OS v3.0 • Editable calendar statuses • Local-first MVP • Supabase/OpenAI ready</p>
+</main>
+<div class="modal" id="copyModal"><div class="modal-box"><div class="section-title"><h3>Copied / Generated Output</h3><button class="btn secondary small" onclick="closeModal()">Close</button></div><pre id="modalText"></pre></div></div>
+<div class="modal" id="calendarEditModal">
+  <div class="modal-box">
+    <div class="section-title">
+      <div><h3>Edit Calendar Item</h3><p>Move planned content through the workflow without deleting it.</p></div>
+      <button class="btn secondary small" onclick="closeCalendarEditor()">Close</button>
+    </div>
+    <input type="hidden" id="editCalId">
+    <div class="row">
+      <div><label>Topic / Title</label><input id="editCalTitle"></div>
+      <div><label>Date</label><input id="editCalDate" type="date"></div>
+    </div>
+    <div class="row3">
+      <div><label>Platform</label><select id="editCalPlatform"><option>LinkedIn</option><option>Facebook</option><option>Instagram</option><option>YouTube</option><option>Blog</option><option>Reddit</option></select></div>
+      <div><label>Type</label><select id="editCalType"><option>Authority Post</option><option>Carousel</option><option>Reel/Short</option><option>Article</option><option>Comment Session</option><option>Industry Insight</option></select></div>
+      <div><label>Status</label><select id="editCalStatus"><option>Idea</option><option>Draft</option><option>Production</option><option>Ready to Schedule</option><option>Scheduled</option><option>Posted</option></select></div>
+    </div>
+    <label>Asset Link</label><input id="editCalAsset" placeholder="Canva, Drive, YouTube, LinkedIn, or Meta Business Suite link">
+    <label>Notes / Caption / Dispatch Details</label><textarea id="editCalNotes" placeholder="Caption draft, posting notes, who is assigned, or scheduling details..."></textarea>
+    <div class="toolbar">
+      <button class="btn blush" onclick="saveCalendarEdit()">Save Changes</button>
+      <button class="btn secondary" onclick="duplicateCalendarItem()">Duplicate</button>
+      <button class="btn secondary" onclick="deleteCalendarItem()">Delete</button>
+    </div>
+  </div>
+</div>
+<script>
+const LS='tlb_marketing_os_v2';
+const defaultData={calendar:[],research:[],packs:[],stories:[],directory:[],mission:{},settings:{supabaseUrl:'',supabaseAnonKey:'',functionName:'generate-content'},brand:{company:'The Lead Boss',email:'ariana@theleadboss.com',core:'Your agents sell. We deliver opportunities.',offer:'Premium Medicare live transfers, lead generation support, agency growth consulting, pilot programs, and scalable daily volume for agencies that need consistent conversations.',icp:'Medicare agencies, FMOs, IMOs, insurance organizations, and call centers with multiple licensed agents, active lead budgets, and capacity for 50–120+ live transfers per day.',tone:'Bright, premium, confident, helpful, agency-focused, compliant, clear, growth-minded, not spammy, not desperate.',avoid:'Avoid: cheap leads, guaranteed sales, unrealistic claims, aggressive compliance claims, spam language, copying competitor wording, pretending to be a customer if that is not true. For Reddit/Facebook, be transparent and useful; mention The Lead Boss softly only where natural.'}};
+let data=load();let calendar;
+let uploadCache={source:[],story:[],comment:[]};
+function load(){try{return {...defaultData,...JSON.parse(localStorage.getItem(LS)||'{}')}}catch(e){return defaultData}}
+function save(){localStorage.setItem(LS,JSON.stringify(data));refreshMetrics();}
+function showModal(t){document.getElementById('modalText').textContent=t;document.getElementById('copyModal').classList.add('show');navigator.clipboard?.writeText(t).catch(()=>{});}function closeModal(){document.getElementById('copyModal').classList.remove('show')}
+
+document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById(b.dataset.page).classList.add('active');if(b.dataset.page==='calendar') setTimeout(()=>calendar?.render(),50)}));
+const missions=['LinkedIn authority post','Facebook post','Instagram carousel','Short-form video script','YouTube Short','Industry insight','15 Facebook comments','10 LinkedIn comments','5 Reddit contributions','Engage with 5 agency owners'];
+function renderMission(){const box=document.getElementById('missionList');box.innerHTML='';missions.forEach((m,i)=>{const id='m'+i;box.innerHTML+=`<label class="check" style="margin:0;text-transform:none;letter-spacing:0;color:var(--ink);font-size:14px"><input type="checkbox" ${data.mission[id]?'checked':''} onchange="data.mission['${id}']=this.checked;save();renderMission()"><span>${m}</span></label>`});const done=Object.values(data.mission).filter(Boolean).length;const pct=Math.round(done/missions.length*100);document.getElementById('progressBar').style.width=pct+'%';document.getElementById('progressText').textContent=pct+'%'}
+function resetMission(){data.mission={};save();renderMission()}
+function refreshMetrics(){document.getElementById('metricCalendar').textContent=data.calendar.length;document.getElementById('metricResearch').textContent=data.research.length;document.getElementById('metricStories').textContent=data.stories.length;document.getElementById('metricPacks').textContent=data.packs.length}
+function statusClass(status){return 'status-'+String(status||'Idea').replaceAll(' ','-').replaceAll('/','-')}
+function calendarEvents(){return data.calendar.map(x=>({id:x.id,title:`${x.platform}: ${x.title}`,start:x.date,className:[statusClass(x.status)],extendedProps:x}))}
+function refreshCalendar(){if(calendar){calendar.removeAllEvents();calendarEvents().forEach(e=>calendar.addEvent(e));calendar.render();}}
+function initCalendar(){const el=document.getElementById('contentCalendar');calendar=new FullCalendar.Calendar(el,{initialView:'dayGridMonth',height:'auto',events:calendarEvents(),eventClick(info){openCalendarEditor(info.event.id)}});calendar.render()}
+function addCalendarItem(){const title=val('calTitle'),date=val('calDate');if(!title||!date)return alert('Add title and date.');data.calendar.push({id:Date.now()+'',title,date,platform:val('calPlatform'),type:val('calType'),status:val('calStatus'),asset:'',notes:''});save();document.getElementById('calTitle').value='';refreshCalendar();}
+function openCalendarEditor(id){const item=data.calendar.find(x=>x.id===id);if(!item)return;document.getElementById('editCalId').value=item.id;document.getElementById('editCalTitle').value=item.title||'';document.getElementById('editCalDate').value=item.date||'';document.getElementById('editCalPlatform').value=item.platform||'LinkedIn';document.getElementById('editCalType').value=item.type||'Authority Post';document.getElementById('editCalStatus').value=item.status||'Idea';document.getElementById('editCalAsset').value=item.asset||'';document.getElementById('editCalNotes').value=item.notes||'';document.getElementById('calendarEditModal').classList.add('show')}
+function closeCalendarEditor(){document.getElementById('calendarEditModal').classList.remove('show')}
+function saveCalendarEdit(){const id=val('editCalId');const item=data.calendar.find(x=>x.id===id);if(!item)return;item.title=val('editCalTitle');item.date=val('editCalDate');item.platform=val('editCalPlatform');item.type=val('editCalType');item.status=val('editCalStatus');item.asset=val('editCalAsset');item.notes=val('editCalNotes');if(!item.title||!item.date)return alert('Title and date are required.');save();refreshCalendar();closeCalendarEditor()}
+function duplicateCalendarItem(){const id=val('editCalId');const item=data.calendar.find(x=>x.id===id);if(!item)return;const copy={...item,id:Date.now()+'',title:item.title+' (copy)',status:'Idea'};data.calendar.push(copy);save();refreshCalendar();openCalendarEditor(copy.id)}
+function deleteCalendarItem(){const id=val('editCalId');if(!confirm('Delete this calendar item?'))return;data.calendar=data.calendar.filter(x=>x.id!==id);save();refreshCalendar();closeCalendarEditor()}
+function val(id){return document.getElementById(id).value.trim()}
+const assetNames=['LinkedIn Authority Post','Facebook Post','Instagram Carousel','Reel / Short Script','YouTube Short','Industry Insight','Comment Question','Blog Outline','ChatGPT Visual Prompt','ElevenLabs Prompt','HeyGen Prompt','Calendar Suggestions'];
+function buildPrompt(mode){const brand=data.brand;return `You are The Lead Boss content strategist. Do not copy competitor wording. Extract the topic, pain point, hook, and structure, then create original content for Medicare agency owners, FMOs, IMOs, and call centers.\n\nBRAND CONTEXT:\nCompany: ${brand.company}\nEmail: ${brand.email}\nCore Message: ${brand.core}\nOffer: ${brand.offer}\nIdeal Customer: ${brand.icp}\nTone: ${brand.tone}\nGuardrails: ${brand.avoid}\n\nTASK: ${mode==='campaign'?'Create a full weekly campaign plan from this source.':'Create a complete daily content pack from this source.'}\n\nSOURCE NAME: ${val('sourceName')}\nPLATFORM: ${val('sourcePlatform')}\nLINK: ${val('sourceLink')}\nTEXT/TRANSCRIPT/ARTICLE/NOTES:\n${val('sourceText')}\n\nVISUAL/SCREENSHOT NOTES:\n${val('sourceVisual')}\n\nATTACHED IMAGE COUNT: ${uploadCache.source.length}\nIf images are attached, analyze the visible layout, hook, style, offer, and positioning without copying it.\n\nOUTPUT REQUIRED:\n- Original Lead Boss angle\n- LinkedIn authority post\n- Facebook post\n- Instagram carousel copy\n- Reel/Short script\n- YouTube Short title + caption\n- Industry insight\n- Engagement question\n- Blog outline\n- ChatGPT image prompt\n- ElevenLabs voice prompt\n- HeyGen avatar prompt\n- Suggested calendar placement\n\nKeep it premium, useful, agency-owner focused, and authentic.`}
+function buildPayload(mode){return {mode,brand:data.brand,source:{name:val('sourceName')||'Untitled Source',platform:val('sourcePlatform'),link:val('sourceLink'),text:val('sourceText'),visual:val('sourceVisual')},images:uploadCache.source.map(x=>({name:x.name,type:x.type,dataUrl:x.dataUrl}))}}
+async function generatePack(mode){
+  const prompt=buildPrompt(mode);
+  const pack={id:Date.now()+'',date:new Date().toLocaleString(),source:val('sourceName')||'Untitled Source',prompt,assets:null};
+  const researchItem={id:Date.now()+'r',date:new Date().toLocaleString(),source:pack.source,platform:val('sourcePlatform'),link:val('sourceLink'),text:val('sourceText').slice(0,500),visual:val('sourceVisual').slice(0,500),photos:uploadCache.source.map(x=>({name:x.name,type:x.type,dataUrl:x.dataUrl}))};
+  try{
+    const ai=await callAI(mode);
+    pack.assets=ai.assets||ai;
+    data.packs.unshift(pack);data.research.unshift(researchItem);save();renderAssetsFromAI(pack.assets);renderResearch();showModal(typeof ai.raw==='string'?ai.raw:JSON.stringify(pack.assets,null,2));
+  }catch(err){
+    data.packs.unshift(pack);data.research.unshift(researchItem);save();renderAssets(prompt);renderResearch();showModal(prompt+'\n\n---\nBackend not connected or returned an error. Copy this master prompt into ChatGPT.\nError: '+err.message);
+  }
+}
+async function callAI(mode){
+  const st=data.settings||{};
+  if(!st.supabaseUrl||!st.supabaseAnonKey) throw new Error('Supabase backend settings are missing.');
+  const url=st.supabaseUrl.replace(/\/$/,'')+'/functions/v1/'+(st.functionName||'generate-content');
+  const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+st.supabaseAnonKey,'apikey':st.supabaseAnonKey},body:JSON.stringify(buildPayload(mode))});
+  if(!res.ok){throw new Error(await res.text())}
+  return await res.json();
+}
+function copyMasterPrompt(mode){showModal(buildPrompt(mode))}
+function renderAssetsFromAI(assets){
+  const box=document.getElementById('assetBucket');box.innerHTML='';
+  const map=Array.isArray(assets)?assets:Object.entries(assets||{}).map(([title,content])=>({title,content:typeof content==='string'?content:JSON.stringify(content,null,2)}));
+  (map.length?map:assetNames.map(title=>({title,content:''}))).forEach(a=>{box.innerHTML+=`<div class="asset-card"><h4>${escapeHtml(a.title||'Asset')}</h4><textarea>${escapeHtml(a.content||'')}</textarea><button class="btn secondary small" onclick="navigator.clipboard.writeText(this.previousElementSibling.value)">Copy</button></div>`})
+}
+function renderAssets(prompt=''){const box=document.getElementById('assetBucket');box.innerHTML='';assetNames.forEach(name=>{box.innerHTML+=`<div class="asset-card"><h4>${name}</h4><textarea placeholder="AI output appears here after backend generation or after you paste the master prompt into ChatGPT.">${prompt?`Use the master prompt to generate: ${name}`:''}</textarea><button class="btn secondary small" onclick="navigator.clipboard.writeText(this.previousElementSibling.value)">Copy</button></div>`})}
+function escapeHtml(str){return String(str).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function handlePhotoUpload(event, bucket){
+  const files=[...event.target.files].slice(0,6);
+  uploadCache[bucket]=[];
+  Promise.all(files.map(file=>new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve({name:file.name,type:file.type,size:file.size,dataUrl:r.result});r.onerror=reject;r.readAsDataURL(file)}))).then(items=>{uploadCache[bucket]=items;renderPhotoPreview(bucket)}).catch(()=>alert('Could not read one of the images.'))
+}
+function renderPhotoPreview(bucket){
+  const el=document.getElementById(bucket+'PhotoPreview');if(!el)return;
+  el.innerHTML=uploadCache[bucket].map(x=>`<div class="photo-tile"><img src="${x.dataUrl}" alt="${escapeHtml(x.name)}"><p>${escapeHtml(x.name)}</p></div>`).join('')
+}
+function saveResearchOnly(){data.research.unshift({id:Date.now()+'',date:new Date().toLocaleString(),source:val('sourceName')||'Untitled Source',platform:val('sourcePlatform'),link:val('sourceLink'),text:val('sourceText'),visual:val('sourceVisual'),photos:uploadCache.source.map(x=>({name:x.name,type:x.type,dataUrl:x.dataUrl}))});save();renderResearch()}
+function renderResearch(){const el=document.getElementById('researchList');el.innerHTML=data.research.length?'':'<div class="empty">No research saved yet.</div>';data.research.forEach(x=>el.innerHTML+=`<div class="item"><div class="item-head"><div><h4>${x.source}</h4><p>${x.platform} • ${x.date}</p>${x.link?`<p><a href="${x.link}" target="_blank">Open Source</a></p>`:''}<p>${(x.text||'').slice(0,220)}</p>${x.photos&&x.photos.length?`<div class="photo-grid">${x.photos.slice(0,4).map(p=>`<div class="photo-tile"><img src="${p.dataUrl}"><p>${escapeHtml(p.name||'photo')}</p></div>`).join('')}</div>`:''}</div><span class="status">Research</span></div></div>`) }
+function copyAllAssets(){const text=[...document.querySelectorAll('#assetBucket textarea')].map(t=>t.value).join('\n\n---\n\n');showModal(text||'No assets yet.')}
+function addStory(){if(!val('storyTitle'))return alert('Add a title.');data.stories.unshift({id:Date.now()+'',date:new Date().toLocaleString(),type:val('storyType'),title:val('storyTitle'),details:val('storyDetails'),photos:uploadCache.story.map(x=>({name:x.name,type:x.type,dataUrl:x.dataUrl}))});save();renderStories();document.getElementById('storyTitle').value='';document.getElementById('storyDetails').value=''}
+function renderStories(){const el=document.getElementById('storyList');el.innerHTML=data.stories.length?'':'<div class="empty">No stories saved yet.</div>';data.stories.forEach(x=>el.innerHTML+=`<div class="item"><div class="item-head"><div><h4>${x.title}</h4><p>${x.type} • ${x.date}</p><p>${x.details.slice(0,260)}</p></div><span class="status">Story</span></div></div>`)}
+function generateFromStory(){const latest=data.stories[0]||{title:val('storyTitle'),type:val('storyType'),details:val('storyDetails')};showModal(`Turn this story into: LinkedIn post, Facebook post, Instagram carousel, Reel script, Reddit comment, and blog outline.\n\nBrand: ${data.brand.company}\nTone: ${data.brand.tone}\nStory Type: ${latest.type}\nTitle: ${latest.title}\nDetails: ${latest.details}\n\nDo not overclaim. Make it helpful and agency-owner focused.`)}
+function generateComments(){const platform=val('commentPlatform'),input=val('commentInput');const buckets={
+'Helpful Reply':`A useful, non-salesy reply for ${platform}:\n\nA lot of agencies run into this when they focus on lead count instead of conversation quality. One strong filter is asking: will this source actually increase agent talk time, or just add more names to chase?`,
+'Thought Leadership':`Authority-building reply for ${platform}:\n\nThe hidden issue is usually operations, not just marketing. If the agency cannot handle consistent transfer volume, even a good lead source gets wasted. Capacity and follow-up matter as much as lead flow.`,
+'Soft Lead Boss Mention':`Soft mention for ${platform}:\n\nWe've seen The Lead Boss positioned more for agencies that need meaningful transfer volume rather than solo-agent lead buying. Worth looking at if the operation can actually handle scale.`,
+'Follow-Up Question':`Follow-up question for ${platform}:\n\nAre you trying to increase total lead volume, or are you trying to get your agents into more real conversations each day? Those are two different problems.`,
+'Reddit Careful Reply':`Careful Reddit-style reply:\n\nI would be cautious with any vendor until you know your close rate, daily capacity, and return per call. Larger Medicare teams usually need transfer volume, but solo agents may be better off optimizing follow-up first.`
+};document.getElementById('commentBank').innerHTML=Object.entries(buckets).map(([k,v])=>`<div class="comment-card"><h4>${k}</h4><textarea>${v}\n\nContext used: ${input.slice(0,180)}</textarea><button class="btn secondary small" onclick="navigator.clipboard.writeText(this.previousElementSibling.value)">Copy</button></div>`).join('')}
+function copyCommentBank(){showModal([...document.querySelectorAll('#commentBank textarea')].map(x=>x.value).join('\n\n---\n\n')||'No comments generated yet.')}
+function saveBrand(){data.brand={company:val('brandCompany'),email:val('brandEmail'),core:val('brandCore'),offer:val('brandOffer'),icp:val('brandICP'),tone:val('brandTone'),avoid:val('brandAvoid')};save();alert('Brand Brain saved.')}
+function fillBrand(){document.getElementById('brandCompany').value=data.brand.company;document.getElementById('brandEmail').value=data.brand.email;document.getElementById('brandCore').value=data.brand.core;document.getElementById('brandOffer').value=data.brand.offer;document.getElementById('brandICP').value=data.brand.icp;document.getElementById('brandTone').value=data.brand.tone;document.getElementById('brandAvoid').value=data.brand.avoid;document.getElementById('setSupabaseUrl').value=(data.settings||{}).supabaseUrl||'';document.getElementById('setSupabaseAnon').value=(data.settings||{}).supabaseAnonKey||'';document.getElementById('setFunctionName').value=(data.settings||{}).functionName||'generate-content'}
+function saveSettings(){data.settings={supabaseUrl:val('setSupabaseUrl'),supabaseAnonKey:val('setSupabaseAnon'),functionName:val('setFunctionName')||'generate-content'};save();alert('Backend settings saved.')}
+function addDirectory(){if(!val('dirName'))return alert('Add a link name.');data.directory.unshift({id:Date.now()+'',name:val('dirName'),url:val('dirUrl'),notes:val('dirNotes')});save();renderDirectory();document.getElementById('dirName').value='';document.getElementById('dirUrl').value='';document.getElementById('dirNotes').value=''}
+function renderDirectory(){const el=document.getElementById('directoryList');el.innerHTML=data.directory.length?'':'<div class="empty">No links saved yet.</div>';data.directory.forEach(x=>el.innerHTML+=`<div class="item"><div class="item-head"><div><h4>${x.name}</h4>${x.url?`<p><a href="${x.url}" target="_blank">${x.url}</a></p>`:''}<p>${x.notes}</p></div><span class="status">SOP</span></div></div>`)}
+function clearList(type){if(confirm('Clear this list?')){data[type]=[];save();renderResearch();renderStories();renderDirectory();}}
+function exportData(){const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='tlb-marketing-os-backup.json';a.click()}
+function importData(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{data=JSON.parse(r.result);save();location.reload()}catch(err){alert('Invalid JSON')}};r.readAsText(f)}
+function seedDirectory(){if(data.directory.length)return;data.directory=[{name:'Meta Business Suite',url:'',notes:'Schedule Facebook and Instagram posts/reels. Save final captions in the calendar item before scheduling.'},{name:'LinkedIn Company Page',url:'',notes:'Schedule authority posts and articles. Use agency-owner tone, not consumer tone.'},{name:'YouTube Studio',url:'',notes:'Upload Shorts and videos. Include keywords: Medicare live transfers, Medicare lead generation, agency growth.'},{name:'Canva Folder',url:'',notes:'Store carousels, post graphics, covers, and brand assets.'},{name:'ElevenLabs',url:'',notes:'Paste voice prompt from AI Factory. Use one consistent brand voice.'},{name:'HeyGen',url:'',notes:'Paste avatar prompt. Keep the same business-casual host for brand familiarity.'}];save()}
+function boot(){renderMission();refreshMetrics();fillBrand();seedDirectory();renderDirectory();renderResearch();renderStories();renderAssets();initCalendar();}
+boot();
+</script>
+</body>
+</html>
