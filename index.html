@@ -766,10 +766,8 @@ async function callSupabaseFunction(payload){
 function extractFetchedText(resp){
   if(!resp) return '';
   if(typeof resp==='string') return resp;
-  const value = resp.text||resp.content||resp.markdown||resp.article||resp.body||resp.raw||resp.data?.text||resp.data?.content||resp.result?.text||resp.result?.content||'';
-  return safeText(value);
+  return resp.text||resp.content||resp.markdown||resp.article||resp.body||resp.raw||resp.data?.text||resp.data?.content||resp.result?.text||resp.result?.content||'';
 }
-
 
 function cloudPayload(){
   return {
@@ -854,28 +852,20 @@ async function generatePack(mode){
   }
 }
 function copyMasterPrompt(mode){showModal(buildPrompt(mode))}
-function safeText(value){
-  if (typeof value === 'string') return value;
-  if (value == null) return '';
-  try { return JSON.stringify(value, null, 2); }
-  catch(e) { return String(value); }
-}
 function assetCardHTML(title, content='', index=0){
-  content = safeText(content);
-  const preview = content.replace(/
-/g,' ').trim().slice(0,80);
-  const hasContent = content.trim().length > 0;
+  const preview = (content||'').replace(/\n/g,' ').trim().slice(0,80);
+  const hasContent = (content||'').trim().length > 0;
   return `<div class="asset-card">
     <div class="asset-card-header" onclick="toggleAssetCardElement(this)">
       <div class="asset-card-title">
         <span class="asset-card-num">${index+1}</span>
         <span class="asset-card-name">${escapeHtml(title||'Asset')}</span>
-        <span class="asset-card-preview">${hasContent ? escapeHtml(preview)+(preview.length===80?'…':'') : '<em style='color:var(--muted)'>Empty</em>'}</span>
+        <span class="asset-card-preview">${hasContent ? escapeHtml(preview)+(preview.length===80?'…':'') : '<em style=\'color:var(--muted)\'>Empty</em>'}</span>
       </div>
       <span class="asset-card-chevron">▾</span>
     </div>
     <div class="asset-card-body">
-      <textarea placeholder="AI output appears here...">${escapeHtml(content)}</textarea>
+      <textarea placeholder="AI output appears here...">${escapeHtml(content||'')}</textarea>
       <div class="asset-card-actions">
         <button class="btn secondary small" onclick="event.stopPropagation();openAssetEditor(this)">✏️ Full Edit</button>
         <button class="btn secondary small" onclick="event.stopPropagation();copyAssetFromButton(this)">Copy</button>
@@ -1300,7 +1290,7 @@ async function fetchUrl(){
     .replace(/\s+/g,' ')
     .trim();
   try{
-    const resp=await callSupabaseFunction({mode:'fetch-url',action:'fetch-url',url:url,link:url,source:{link:url,url:url,text:''}});
+    const resp=await callSupabaseFunction({mode:'fetch-url',action:'fetch-url',url:url,link:url});
     let txt=stripHtml(extractFetchedText(resp)).slice(0,16000);
     if(!txt || txt.length<120){
       throw new Error('The Edge Function responded, but it did not return readable page text. It should return one of: text, content, markdown, article, body, data.text, or result.text.');
