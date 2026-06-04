@@ -800,7 +800,7 @@ function assetCardHTML(title, content='', index=0){
   const preview = (content||'').replace(/\n/g,' ').trim().slice(0,80);
   const hasContent = (content||'').trim().length > 0;
   return `<div class="asset-card" id="acard-${index}">
-    <div class="asset-card-header">
+    <div class="asset-card-header" onclick="toggleAssetCard(${index})">
       <div class="asset-card-title">
         <span class="asset-card-num">${index+1}</span>
         <span class="asset-card-name">${escapeHtml(title||'Asset')}</span>
@@ -821,10 +821,6 @@ function toggleAssetCard(index){
   const card=document.getElementById('acard-'+index);
   if(card) card.classList.toggle('open');
 }
-document.addEventListener('click',function(e){
-  const header=e.target.closest('.asset-card-header');
-  if(header) header.closest('.asset-card').classList.toggle('open');
-});
 function openAssetEditorById(index, title){
   const ta=document.getElementById('atextarea-'+index);
   if(!ta) return;
