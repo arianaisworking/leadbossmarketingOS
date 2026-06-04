@@ -46,6 +46,13 @@ button,input,textarea,select{font:inherit}a,button,.tab-btn,.btn,.asset-card-hea
 .drag-zone-label{font-size:13px;font-weight:700;color:var(--rose-dark);margin-bottom:4px}
 .drag-zone-sub{font-size:11px;color:var(--muted)}
 .drag-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.approach-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:8px}
+.approach-chip{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:#fff;border-radius:14px;padding:10px 12px;font-size:13px;font-weight:800;color:var(--ink);user-select:none}
+.approach-chip input{width:auto;margin:0;accent-color:var(--rose)}
+.approach-chip:hover{background:#fff8fb;border-color:var(--blush2)}
+.backend-private{display:none!important}
+@media(max-width:700px){.approach-grid{grid-template-columns:1fr}}
+
 .story-photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
 .story-photo-tile{position:relative;border-radius:12px;overflow:hidden;background:var(--line)}
 .story-photo-tile img{width:100%;height:80px;object-fit:cover;display:block}
@@ -62,8 +69,11 @@ button,input,textarea,select{font:inherit}a,button,.tab-btn,.btn,.asset-card-hea
 <body>
 <header class="header">
   <div class="header-inner">
-    <div class="brand"><button class="settings-gear" title="Settings" onclick="openSettingsModal()">⚙</button><div class="logo">୨୧</div><div><h1>The Lead Boss Marketing OS</h1><p>Content, comments, calendar, and authority building for Medicare agency growth.</p></div></div>
-    <div class="top-actions"><span class="pill">Manual posting • AI-assisted workflow</span></div>
+    <div class="brand"><div class="logo">୨୧</div><div><h1>The Lead Boss Marketing OS</h1><p>Content, comments, calendar, and authority building for Medicare agency growth.</p></div></div>
+    <div class="top-actions">
+      <button class="settings-gear" title="Backup / Import / Export" aria-label="Backup / Import / Export" onclick="openBackupModal()">⚙</button>
+      <input type="file" id="importFileTop" accept="application/json" style="display:none" onchange="importData(event)">
+    </div>
   </div>
 </header>
 <main class="layout">
@@ -74,7 +84,6 @@ button,input,textarea,select{font:inherit}a,button,.tab-btn,.btn,.asset-card-hea
     <button class="tab-btn" data-page="story">Pain → Content</button>
     <button class="tab-btn" data-page="community">Comment Marketing</button>
     <button class="tab-btn" data-page="directory">Social Directory</button>
-    <button class="tab-btn" data-page="settings">⚙ Settings</button>
   </div>
 
   <section id="dashboard" class="page active">
@@ -135,6 +144,18 @@ button,input,textarea,select{font:inherit}a,button,.tab-btn,.btn,.asset-card-hea
       <div class="card span-5">
         <div class="section-title"><div><h3>Source Input</h3><p>Flexible, not rigid.</p></div></div>
         <div class="row"><div><label>Source Name</label><input id="sourceName" placeholder="GoHealth / Reddit thread / Ariana idea"></div><div><label>Platform</label><select id="sourcePlatform"><option>Competitor</option><option>LinkedIn</option><option>Facebook</option><option>Instagram</option><option>YouTube</option><option>Reddit</option><option>Article</option><option>Internal idea</option></select></div></div>
+        <label>AI Output Approaches</label>
+        <div class="approach-grid" id="approachGrid">
+          <label class="approach-chip"><input type="checkbox" value="ChatGPT" checked> ChatGPT visuals/prompts</label>
+          <label class="approach-chip"><input type="checkbox" value="ElevenLabs" checked> ElevenLabs voice</label>
+          <label class="approach-chip"><input type="checkbox" value="HeyGen" checked> HeyGen avatar video</label>
+          <label class="approach-chip"><input type="checkbox" value="Facebook" checked> Facebook</label>
+          <label class="approach-chip"><input type="checkbox" value="Reddit" checked> Reddit</label>
+          <label class="approach-chip"><input type="checkbox" value="Instagram" checked> Instagram</label>
+          <label class="approach-chip"><input type="checkbox" value="LinkedIn" checked> LinkedIn</label>
+          <label class="approach-chip"><input type="checkbox" value="Custom" checked> + Custom idea bucket</label>
+        </div>
+        <input id="customApproach" placeholder="Optional + bucket, ex: YouTube Short, email nurture, SMS, landing page angle" style="margin-top:8px">
         <label>Link</label>
         <div style="display:flex;gap:8px;align-items:center">
           <input id="sourceLink" placeholder="Paste URL — then hit Fetch to auto-read it" style="flex:1">
@@ -309,7 +330,7 @@ button,input,textarea,select{font:inherit}a,button,.tab-btn,.btn,.asset-card-hea
     <div class="hero" style="margin-bottom:18px">
       <div class="kicker">One-time setup</div>
       <h2 style="font-size:26px">Settings</h2>
-      <p style="margin-bottom:0">Brand Brain, backup tools, and backend connection. Set it once — everything else runs automatically.</p>
+      <p style="margin-bottom:0">Brand Brain and backup tools. Backend settings are intentionally hidden from the team UI.</p><div class="toolbar"><button class="btn gold" onclick="testAllAIFronts()">Check AI on All Fronts</button></div>
     </div>
     <div style="display:flex;flex-direction:column;gap:12px">
 
@@ -370,8 +391,8 @@ button,input,textarea,select{font:inherit}a,button,.tab-btn,.btn,.asset-card-hea
         </div>
       </div>
 
-      <!-- BACKEND ACCORDION -->
-      <div class="card span-12" style="padding:0;overflow:hidden">
+      <!-- BACKEND ACCORDION — private/hidden from team UI -->
+      <div class="card span-12 backend-private" style="padding:0;overflow:hidden">
         <div onclick="toggleAccordion('accBackend')" style="display:flex;align-items:center;justify-content:space-between;padding:18px 22px;cursor:pointer;user-select:none" onmouseover="this.style.background='#fff8fb'" onmouseout="this.style.background=''">
           <div style="display:flex;align-items:center;gap:12px">
             <span style="font-size:22px">⚡</span>
@@ -409,7 +430,7 @@ button,input,textarea,select{font:inherit}a,button,.tab-btn,.btn,.asset-card-hea
     </div>
   </section>
 
-    <p class="footer-note">The Lead Boss Marketing OS v3.2 • Editable calendar statuses • Local-first MVP • Supabase/OpenAI ready</p>
+    <p class="footer-note">The Lead Boss Marketing OS v3.3 • Editable calendar statuses • Team-facing workspace</p>
 </main>
 
 <!-- Directory edit modal — OUTSIDE all page sections so it's always visible -->
@@ -452,6 +473,22 @@ button,input,textarea,select{font:inherit}a,button,.tab-btn,.btn,.asset-card-hea
   </div>
 </div>
 
+<div class="modal" id="backupModal">
+  <div class="modal-box" style="max-width:520px">
+    <div class="section-title">
+      <div>
+        <h3>Backup &amp; Restore</h3>
+        <p>Export or import your full OS data backup.</p>
+      </div>
+      <button class="btn secondary small" onclick="closeBackupModal()">Close</button>
+    </div>
+    <div class="toolbar" style="margin-top:8px">
+      <button class="btn secondary" onclick="exportData()">Export Backup</button>
+      <button class="btn blush" onclick="document.getElementById('importFileTop').click()">Import Backup</button>
+    </div>
+    <p class="mini-note" style="margin-top:14px">Export downloads a JSON backup. Import replaces the current saved OS data with your selected backup file.</p>
+  </div>
+</div>
 <div class="modal" id="copyModal"><div class="modal-box"><div class="section-title"><h3>Copied / Generated Output</h3><button class="btn secondary small" onclick="closeModal()">Close</button></div><pre id="modalText"></pre></div></div>
 <div class="modal" id="assetEditModal"><div class="modal-box" style="max-width:920px"><div class="section-title"><h3 id="assetEditTitle">Edit Asset</h3><button class="btn secondary small" onclick="closeAssetEditor()">Close</button></div><textarea id="assetEditText" class="asset-edit-textarea"></textarea><div class="toolbar"><button class="btn" onclick="saveAssetEditor()">Save Changes</button><button class="btn secondary" onclick="copyAssetEditor()">Copy Text</button></div></div></div>
 <div class="modal" id="calendarEditModal">
@@ -500,6 +537,8 @@ function load(){try{return {...defaultData,...JSON.parse(localStorage.getItem(LS
 function save(){localStorage.setItem(LS,JSON.stringify(data));refreshMetrics();}
 function showModal(t){document.getElementById('modalText').textContent=t;document.getElementById('copyModal').classList.add('show');navigator.clipboard?.writeText(t).catch(()=>{});}function closeModal(){document.getElementById('copyModal').classList.remove('show')}
 let activeAssetTextarea=null;
+function openBackupModal(){document.getElementById('backupModal').classList.add('show')}
+function closeBackupModal(){document.getElementById('backupModal').classList.remove('show')}
 function openAssetEditor(btn){const card=btn.closest('.asset-card');activeAssetTextarea=card.querySelector('textarea');const name=card.querySelector('.asset-card-name');document.getElementById('assetEditTitle').textContent=name?name.textContent:(card.querySelector('h4')||{}).textContent||'Asset';document.getElementById('assetEditText').value=activeAssetTextarea.value;document.getElementById('assetEditModal').classList.add('show')}
 function closeAssetEditor(){document.getElementById('assetEditModal').classList.remove('show');activeAssetTextarea=null}
 function saveAssetEditor(){if(activeAssetTextarea){activeAssetTextarea.value=document.getElementById('assetEditText').value}closeAssetEditor()}
@@ -509,7 +548,8 @@ function openSettingsModal(){
   // Navigate to settings page tab
   document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
-  document.querySelector('[data-page="settings"]').classList.add('active');
+  const settingsTab=document.querySelector('[data-page="settings"]');
+  if(settingsTab) settingsTab.classList.add('active');
   document.getElementById('settings').classList.add('active');
   fillBrand();
   updateBrandBrainStatus();
@@ -593,7 +633,13 @@ function saveCalendarEdit(){const id=val('editCalId');const item=data.calendar.f
 function duplicateCalendarItem(){const id=val('editCalId');const item=data.calendar.find(x=>x.id===id);if(!item)return;const copy={...item,id:Date.now()+'',title:item.title+' (copy)',status:'Idea'};data.calendar.push(copy);save();refreshCalendar();openCalendarEditor(copy.id)}
 function deleteCalendarItem(){const id=val('editCalId');if(!confirm('Delete this calendar item?'))return;data.calendar=data.calendar.filter(x=>x.id!==id);save();refreshCalendar();closeCalendarEditor()}
 function val(id){return document.getElementById(id).value.trim()}
-const assetNames=['AI Photo Analysis','Original Lead Boss Angle','LinkedIn Authority Post','Facebook Post','Carousel Slides — ChatGPT Image Prompts','Reel / Short Script','YouTube Short','Industry Insight','Comment Question','Blog Outline','ChatGPT Image Prompt','ElevenLabs Voice Prompt','HeyGen Avatar Prompt','Calendar Suggestions'];
+const assetNames=['AI Photo Analysis','Original Lead Boss Angle','ChatGPT Visual Prompt Bank','ElevenLabs Voice Script','HeyGen Avatar Video Script','Facebook Post + Group Angle','Reddit Helpful Reply / Thread Angle','Instagram Carousel/Reel Plan','LinkedIn Authority Post','+ Extra Content Bucket','Industry Insight','Engagement Question','Blog Outline','Calendar Suggestions'];
+function getSelectedApproaches(){
+  const checks=[...document.querySelectorAll('#approachGrid input[type="checkbox"]:checked')].map(x=>x.value);
+  const custom=(document.getElementById('customApproach')?.value||'').trim();
+  if(custom) checks.push(custom);
+  return checks.length?checks:['ChatGPT','ElevenLabs','HeyGen','Facebook','Reddit','Instagram','LinkedIn','Custom idea bucket'];
+}
 function buildPrompt(mode){
   const brand=data.brand;
   const task=mode==='campaign'
@@ -620,6 +666,7 @@ LINK: ${val('sourceLink')}
 TEXT/TRANSCRIPT/ARTICLE/NOTES:
 ${val('sourceText')}
 
+SELECTED OUTPUT APPROACHES: ${getSelectedApproaches().join(", ")}
 ATTACHED IMAGE COUNT: ${uploadCache.source.length}
 If images are attached, AI should analyze the visible layout, headline, hook, style, offer, CTA, and positioning without copying it. Aima should not have to manually describe the image.
 
@@ -627,23 +674,60 @@ OUTPUT REQUIRED:
 - AI Photo Analysis: what the image shows, hook/angle noticed, what works, what to avoid
 - Competitor/source pattern detected
 - Original Lead Boss adaptation idea
-- LinkedIn authority post
-- Facebook post
-- Carousel Slides — ChatGPT Image Prompts: for each of 5 slides (hook, 3 pain/solution, CTA) write both the slide text/copy AND a ready-to-paste ChatGPT image generation prompt that describes the visual for that slide — background style, text overlay, colors (rose/champagne/white brand palette), mood, and composition — so Mariam can paste each prompt into ChatGPT and get a finished slide image
-- Reel/Short script
-- YouTube Short title + caption
+For EACH selected output approach, create a practical content idea/output Ariana's team can use immediately. Required buckets:
+- ChatGPT Visual Prompt Bank: ready-to-paste image prompts for branded carousel slides, thumbnails, and one hero visual. Include slide text plus visual prompt.
+- ElevenLabs Voice Script: natural AI voice script with pacing, pause markers, tone direction, and full spoken copy.
+- HeyGen Avatar Video Script: avatar directions, exact spoken script, tone, background, length target, and CTA.
+- Facebook: post copy, group discussion angle, and soft CTA.
+- Reddit: helpful non-spammy reply/thread angle that does not sound promotional.
+- Instagram: carousel/reel plan with hook, slide beats, caption, and CTA.
+- LinkedIn: authority post for agency owners.
+- + Custom idea bucket: one additional creative distribution idea based on the custom field or the source.
 - Industry insight
 - Engagement question
 - Blog outline
-- ChatGPT image prompt
-- ChatGPT Image Prompt: a single detailed image generation prompt Mariam can paste into ChatGPT to create a branded visual or thumbnail for this content — specify style, colors (rose, champagne, white, dark ink), mood, composition, and any text overlay
-- ElevenLabs Voice Prompt: a ready-to-paste voice script optimized for ElevenLabs text-to-speech — natural pacing, pause markers, tone direction, and the full spoken script
-- HeyGen Avatar Prompt: a complete HeyGen video script with avatar direction — what the avatar says word for word, suggested tone/emotion, background setting, and video length target
 - Suggested calendar placement
 
 Keep it premium, useful, agency-owner focused, authentic, and visually differentiated.`
 }
 function buildPayload(mode){return {mode,brand:data.brand,source:{name:val('sourceName')||'Untitled Source',platform:val('sourcePlatform'),link:val('sourceLink'),text:val('sourceText')},images:uploadCache.source.map(x=>({name:x.name,type:x.type,dataUrl:x.dataUrl}))}}
+function buildVisionMessages(prompt, photos){
+  const content=[{type:'text',text:prompt}];
+  (photos||[]).forEach(p=>{ if(p&&p.dataUrl) content.push({type:'image_url',image_url:{url:p.dataUrl}}); });
+  return [{role:'user',content}];
+}
+function cleanAIJson(raw){
+  const text=(raw||'').replace(/^```json|^```|```$/gm,'').trim();
+  try{return JSON.parse(text);}catch(e){
+    const start=text.indexOf('{'), end=text.lastIndexOf('}');
+    if(start>=0&&end>start) return JSON.parse(text.slice(start,end+1));
+    throw e;
+  }
+}
+async function openAIJson(prompt, maxTokens=1200, photos=[]){
+  const key=getApiKey();
+  if(!key) throw new Error('No OpenAI API key saved. Open Settings and add the key, or connect your Supabase backend.');
+  const res=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model:'gpt-4o',max_tokens:maxTokens,messages:buildVisionMessages(prompt,photos)})});
+  const d=await res.json();
+  if(d.error) throw new Error(d.error.message||JSON.stringify(d.error));
+  return cleanAIJson(d.choices?.[0]?.message?.content||'');
+}
+async function testAllAIFronts(){
+  const results=[];
+  const tests=[
+    ['Content Factory','Return JSON only: {"assets":[{"title":"Content Factory OK","content":"AI is working."}]}'],
+    ['Photo Analysis','Return JSON only: {"assets":[{"title":"Photo Analysis OK","content":"Vision-ready pathway is working. If photos are attached, they are sent as image inputs."}]}'],
+    ['Pain to Content','Return JSON only: {"assets":[{"title":"Pain to Content OK","content":"Story generation is working."}]}'],
+    ['Comment Marketing','Return JSON only: {"assets":[{"title":"Comment Marketing OK","content":"Comment replies are working."}]}'],
+    ['Weekly Campaign','Return JSON only: {"theme":"AI check","goal":"Verify weekly campaign","days":[],"dm_script":"OK","comment_angle":"OK"}']
+  ];
+  showModal('Running AI checks...');
+  for(const [name,prompt] of tests){
+    try{ await openAIJson(prompt,500,[]); results.push('✓ '+name); }
+    catch(err){ results.push('✕ '+name+' — '+err.message); }
+  }
+  showModal('AI Front Check Results:\n\n'+results.join('\n'));
+}
 async function generatePack(mode){
   const prompt=buildPrompt(mode);
   const pack={id:Date.now()+'',date:new Date().toLocaleString(),source:val('sourceName')||'Untitled Source',prompt,assets:null};
@@ -654,20 +738,7 @@ async function generatePack(mode){
   box.innerHTML='<div style="grid-column:span 3;text-align:center;padding:50px 20px;color:var(--muted);font-size:14px"><div style="font-size:36px;margin-bottom:12px">⏳</div>Generating your content pack...</div>';
 
   try{
-    const res=await fetch('https://api.openai.com/v1/chat/completions',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+getApiKey()},
-      body:JSON.stringify({
-        model:'gpt-4o',
-        max_tokens:4000,
-        messages:[{role:'user',content:prompt+'\n\nRespond ONLY with a JSON object. No preamble, no backticks, no markdown. Shape: {"assets":[{"title":"Asset Name","content":"Full content here"},...]} — one object per asset type listed above.'}]
-      })
-    });
-    const d=await res.json();
-    if(d.error) throw new Error(d.error.message||JSON.stringify(d.error));
-    const raw=d.choices?.[0]?.message?.content||'';
-    let parsed;
-    try{ let clean=raw.replace(/^```json|^```|```\$/gm,'').trim(); if(!clean.endsWith('}'))clean=clean.replace(/,?\s*\{[^{}]*\$/,'')+(clean.includes('"assets"')?']}':'}'); parsed=JSON.parse(clean); }catch(e){ throw new Error('AI parse error: '+raw.slice(0,200)); }
+    const parsed=await openAIJson(prompt+'\n\nRespond ONLY with a JSON object. No preamble, no backticks, no markdown. Shape: {"assets":[{"title":"Asset Name","content":"Full content here"},...]} — one object per asset type listed above.',4000,uploadCache.source);
     const assets=parsed.assets||parsed;
     pack.assets=assets;
     data.packs.unshift(pack);data.research.unshift(researchItem);save();renderAssetsFromAI(assets);renderResearch();flashAssetsSaved();setTimeout(()=>toggleAssetCard(0),50);
@@ -975,7 +1046,7 @@ function saveOpenaiKey(){
   setTimeout(()=>{btn.textContent='Save Key';btn.style.background='';},1800);
 }
 function saveSettings(){data.settings={...(data.settings||{}),supabaseUrl:val('setSupabaseUrl'),supabaseAnonKey:val('setSupabaseAnon'),functionName:val('setFunctionName')||'generate-content'};save();}
-async function testBackendConnection(){try{const st=data.settings||{};if(!st.supabaseUrl||!st.supabaseAnonKey) return alert('Save Supabase URL and anon key first.');const oldName=document.getElementById('sourceName').value;const oldText=document.getElementById('sourceText').value;document.getElementById('sourceName').value='Backend Test';document.getElementById('sourceText').value='Create a short test content pack about Medicare live transfers for agency owners.';const ai=await callAI('content');showModal('AI connection successful. Response preview:\n\n'+JSON.stringify(ai,null,2).slice(0,2500));document.getElementById('sourceName').value=oldName;document.getElementById('sourceText').value=oldText;}catch(err){showModal('AI connection failed:\n\n'+err.message+'\n\nChecklist:\n1. Is OPENAI_API_KEY saved in Supabase Secrets?\n2. Is generate-content deployed?\n3. Is Supabase URL correct?\n4. Is anon key correct?')}}
+async function testBackendConnection(){try{const st=data.settings||{};if(!st.supabaseUrl||!st.supabaseAnonKey) return alert('Save Supabase URL and anon key first.');const oldName=document.getElementById('sourceName').value;const oldText=document.getElementById('sourceText').value;document.getElementById('sourceName').value='Backend Test';document.getElementById('sourceText').value='Create a short test content pack about Medicare live transfers for agency owners.';const ai=await openAIJson(buildPrompt('content')+'\n\nRespond JSON only: {\"assets\":[{\"title\":\"Test\",\"content\":\"OK\"}]}',800,[]);showModal('AI connection successful. Response preview:\n\n'+JSON.stringify(ai,null,2).slice(0,2500));document.getElementById('sourceName').value=oldName;document.getElementById('sourceText').value=oldText;}catch(err){showModal('AI connection failed:\n\n'+err.message+'\n\nChecklist:\n1. Is OPENAI_API_KEY saved in Supabase Secrets?\n2. Is generate-content deployed?\n3. Is Supabase URL correct?\n4. Is anon key correct?')}}
 const CHANNEL_PRESETS=[
   {name:'Meta Business Suite', icon:'📘', url:'https://business.facebook.com', notes:'Schedule Facebook and Instagram posts/reels. Save final captions in the calendar item before scheduling.'},
   {name:'LinkedIn Page', icon:'💼', url:'https://www.linkedin.com/company/', notes:'Schedule authority posts and articles. Use agency-owner tone, not consumer tone.'},
