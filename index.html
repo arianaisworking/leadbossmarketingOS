@@ -1151,41 +1151,66 @@ async function fetchUrl(){
   btn.textContent = 'Fetching...';
   btn.disabled = true;
   status.style.color = 'var(--muted)';
-  status.textContent = 'Reading page...';
+  status.textContent = 'Reading page through Supabase Edge Function...';
 
   try {
-    // Fetch via CORS proxy, then clean up with OpenAI
-    const proxyRes = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(url));
-    const proxyData = await proxyRes.json();
-    const rawHtml = proxyData.contents || '';
-    const stripped = rawHtml.replace(/<style[^>]*>[\s\S]*?<\/style>/gi,'')
-      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi,'')
-      .replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim().slice(0,6000);
-    if(!stripped || stripped.length < 40) throw new Error('Could not read this URL. Try a public article or paste manually.');
-    const aiRes = await fetch('https://api.openai.com/v1/chat/completions', {
+    const st = data.settings || {};
+    const functionUrl = 'https://zjabbqdbguufkndqwjru.supabase.co/functions/v1/generate-content';
+    const headers = {'Content-Type':'application/json'};
+
+    // If your function has JWT verification ON, it needs the anon key. If JWT verification is OFF, this still works without it.
+    if(st.supabaseAnonKey){
+      headers.Authorization = 'Bearer ' + st.supabaseAnonKey;
+      headers.apikey = st.supabaseAnonKey;
+    }
+
+    const res = await fetch(functionUrl, {
       method: 'POST',
-      headers: {'Content-Type':'application/json','Authorization':'Bearer '+getApiKey()},
+      headers,
       body: JSON.stringify({
-        model: 'gpt-4o', max_tokens: 1000,
-        messages: [{role:'user',content:'Extract and return ONLY the main readable content from this page — article body, post text, or key info. Remove nav, ads, footers. Plain text only, no commentary.\n\n'+stripped}]
+        mode: 'fetch-url',
+        task: 'fetch-url',
+        url,
+        sourceUrl: url
       })
     });
-    const aiData = await aiRes.json();
-    if(aiData.error) throw new Error(aiData.error.message||JSON.stringify(aiData.error));
-    const text = aiData.choices?.[0]?.message?.content?.trim() || '';
 
-    if(!text || text.length < 40) throw new Error('Could not extract readable content from this URL. Try a public article or paste manually.');
+    let payload;
+    const contentType = res.headers.get('content-type') || '';
+    if(contentType.includes('application/json')) payload = await res.json();
+    else payload = { text: await res.text() };
+
+    if(!res.ok){
+      throw new Error(payload.error || payload.message || ('Edge Function returned HTTP ' + res.status));
+    }
+
+    const text = (
+      payload.text ||
+      payload.content ||
+      payload.extracted ||
+      payload.result ||
+      payload.output ||
+      payload.summary ||
+      payload.data?.text ||
+      payload.data?.content ||
+      payload.data?.extracted ||
+      payload.choices?.[0]?.message?.content ||
+      ''
+    ).toString().trim();
+
+    if(!text || text.length < 40){
+      throw new Error('The Edge Function answered, but did not return readable page text. It should return JSON like {"text":"..."}.');
+    }
 
     textarea.value = text;
 
-    // Auto-fill source name if empty
     const nameField = document.getElementById('sourceName');
     if(!nameField.value.trim()){
       try { nameField.value = new URL(url).hostname.replace('www.',''); } catch(e){}
     }
 
     status.style.color = 'var(--success)';
-    status.textContent = '✓ Content loaded — ' + text.length.toLocaleString() + ' characters. Review then generate.';
+    status.textContent = '✓ Content loaded from Edge Function — ' + text.length.toLocaleString() + ' characters. Review then generate.';
 
   } catch(err) {
     status.style.color = 'var(--danger)';
@@ -1195,7 +1220,6 @@ async function fetchUrl(){
     btn.disabled = false;
   }
 }
-
 
 function closeWeeklyModal(){document.getElementById('weeklyModal').classList.remove('show')}
 
