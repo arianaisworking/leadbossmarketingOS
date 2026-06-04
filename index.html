@@ -659,7 +659,7 @@ async function generatePack(mode){
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+getApiKey()},
       body:JSON.stringify({
         model:'gpt-4o',
-        max_tokens:1000,
+        max_tokens:4000,
         messages:[{role:'user',content:prompt+'\n\nRespond ONLY with a JSON object. No preamble, no backticks, no markdown. Shape: {"assets":[{"title":"Asset Name","content":"Full content here"},...]} — one object per asset type listed above.'}]
       })
     });
@@ -667,7 +667,7 @@ async function generatePack(mode){
     if(d.error) throw new Error(d.error.message||JSON.stringify(d.error));
     const raw=d.choices?.[0]?.message?.content||'';
     let parsed;
-    try{ parsed=JSON.parse(raw.replace(/^```json|^```|```$/gm,'').trim()); }catch(e){ throw new Error('AI parse error: '+raw.slice(0,200)); }
+    try{ let clean=raw.replace(/^```json|^```|```\$/gm,'').trim(); if(!clean.endsWith('}'))clean=clean.replace(/,?\s*\{[^{}]*\$/,'')+(clean.includes('"assets"')?']}':'}'); parsed=JSON.parse(clean); }catch(e){ throw new Error('AI parse error: '+raw.slice(0,200)); }
     const assets=parsed.assets||parsed;
     pack.assets=assets;
     data.packs.unshift(pack);data.research.unshift(researchItem);save();renderAssetsFromAI(assets);renderResearch();flashAssetsSaved();setTimeout(()=>toggleAssetCard(0),50);
