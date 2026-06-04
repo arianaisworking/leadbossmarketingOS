@@ -382,37 +382,22 @@ button,input,textarea,select{font:inherit}a,button,.tab-btn,.btn,.asset-card-hea
             <div><p style="margin:0;font-size:13px;color:var(--muted)">The OpenAI API key stays inside Supabase Secrets as OPENAI_API_KEY — never paste it here.</p></div>
             <button class="btn gold small" onclick="saveSettings()">Save</button>
           </div>
-          <div class="sop" style="margin-bottom:16px"><b>OpenAI runs through your Cloudflare Worker.</b><br>Your API key stays safely inside Cloudflare environment variables — never visible here. Paste your Worker URL above.</div>
+          <div class="sop" style="margin-bottom:16px"><b>OpenAI is connected through Supabase Secrets.</b><br>The dashboard never stores or sees the OpenAI API key. Add/replace it only in Supabase → Edge Functions → Secrets as <code>OPENAI_API_KEY</code>.</div>
           <div class="row3">
-            <div style="grid-column:span 3;background:linear-gradient(135deg,#fff8fb,#fff);border:1px solid var(--blush2);border-radius:14px;padding:14px 16px;margin-bottom:4px">
-              <label style="color:var(--rose-dark)">Cloudflare Worker URL <span style="font-weight:400;text-transform:none;letter-spacing:0">(required for all AI)</span></label>
-              <div style="display:flex;gap:8px;margin-top:6px">
-                <input id="setWorkerUrl" placeholder="https://tlb-ai.yourname.workers.dev" style="flex:1">
-                <button class="btn blush small" onclick="saveWorkerUrl()">Save</button>
-              </div>
-              <p class="mini-note" style="margin-top:6px">Your OpenAI key stays inside Cloudflare — never visible here. See worker.js for setup.</p>
-            </div>
-            <div><label>Supabase Project URL <span style="font-weight:400;text-transform:none;letter-spacing:0">(for shared memory)</span></label><input id="setSupabaseUrl" placeholder="https://xxxx.supabase.co"></div>
-            <div><label>Supabase Anon Key <span style="font-weight:400;text-transform:none;letter-spacing:0">(required)</span></label><input id="setSupabaseAnon" placeholder="eyJ..."></div>
-            <div><label>Function Name <span style="font-weight:400;text-transform:none;letter-spacing:0">(required)</span></label><input id="setFunctionName" placeholder="generate-content"></div>
-          </div>
-          <div style="margin-top:16px;background:linear-gradient(135deg,rgba(95,159,120,.08),rgba(95,159,120,.04));border:1px solid rgba(95,159,120,.25);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px">
-            <span style="font-size:16px">🔄</span>
-            <span style="font-size:13px;color:var(--ink)"><b>Shared memory is always on</b> — saves every change automatically. You and Aima always see the same data. Just fill in your Supabase credentials below and hit Save Settings.</span>
+            <div><label>Supabase Project URL <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label><input id="setSupabaseUrl" placeholder="https://xxxx.supabase.co"></div>
+            <div><label>Supabase Anon Key <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label><input id="setSupabaseAnon" placeholder="eyJ..."></div>
+            <div><label>Function Name <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label><input id="setFunctionName" placeholder="generate-content"></div>
           </div>
           <div class="toolbar" style="margin-top:16px">
             <button class="btn blush small" onclick="testBackendConnection()">Test AI Connection</button>
-            <button class="btn secondary small" onclick="loadCloudData()">Load Shared Memory</button>
-            <button class="btn secondary small" onclick="saveCloudDataNow()">Save Shared Memory</button>
           </div>
-          <p class="mini-note" id="cloudSyncStatus" style="margin-top:8px">Shared memory auto-saves when Supabase credentials are set in Settings.</p>
         </div>
       </div>
 
     </div>
   </section>
 
-    <p class="footer-note">The Lead Boss Marketing OS v4.0 • Supabase AI only • Shared memory ready</p>
+    <p class="footer-note">The Lead Boss Marketing OS v3.7 • Editable calendar statuses • Supabase Edge AI • OpenAI key protected</p>
 </main>
 
 <!-- Directory edit modal — OUTSIDE all page sections so it's always visible -->
@@ -495,11 +480,11 @@ button,input,textarea,select{font:inherit}a,button,.tab-btn,.btn,.asset-card-hea
 
 <script>
 const LS='tlb_marketing_os_v2';
-const defaultData={calendar:[],research:[],packs:[],stories:[],directory:[],mission:{},settings:{supabaseUrl:'https://zjabbqdbguufkndqwjru.supabase.co',supabaseAnonKey:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqYWJicWRiZ3V1ZmtuZHF3anJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0OTA1NDgsImV4cCI6MjA5NjA2NjU0OH0.yexouM-hc1ZamPsl0fTBbXUhjFGB79n54kJMTck1QrE',functionName:'generate-content',cloudSync:true,workerUrl:'https://leadbossai.arianaisworking.workers.dev'},focusTasks:[{text:'1 hour comment marketing: Facebook, LinkedIn, Reddit',done:false},{text:'Keep content focused on agency owners, not consumers',done:false},{text:'Save strong questions/objections into Story Bank',done:false}],brand:{company:'The Lead Boss',email:'ariana@theleadboss.com',core:'Your agents sell. We deliver opportunities.',offer:'Premium Medicare live transfers, lead generation support, agency growth consulting, pilot programs, and scalable daily volume for agencies that need consistent conversations.',icp:'Medicare agencies, FMOs, IMOs, insurance organizations, and call centers with multiple licensed agents, active lead budgets, and capacity for 50–120+ live transfers per day.',tone:'Bright, premium, confident, helpful, agency-focused, compliant, clear, growth-minded, not spammy, not desperate.',avoid:'Avoid: cheap leads, guaranteed sales, unrealistic claims, aggressive compliance claims, spam language, copying competitor wording, pretending to be a customer if that is not true. For Reddit/Facebook, be transparent and useful; mention The Lead Boss softly only where natural.'}};
+const defaultData={calendar:[],research:[],packs:[],stories:[],directory:[],mission:{},settings:{supabaseUrl:'',supabaseAnonKey:'',functionName:'generate-content'},focusTasks:[{text:'1 hour comment marketing: Facebook, LinkedIn, Reddit',done:false},{text:'Keep content focused on agency owners, not consumers',done:false},{text:'Save strong questions/objections into Story Bank',done:false}],brand:{company:'The Lead Boss',email:'ariana@theleadboss.com',core:'Your agents sell. We deliver opportunities.',offer:'Premium Medicare live transfers, lead generation support, agency growth consulting, pilot programs, and scalable daily volume for agencies that need consistent conversations.',icp:'Medicare agencies, FMOs, IMOs, insurance organizations, and call centers with multiple licensed agents, active lead budgets, and capacity for 50–120+ live transfers per day.',tone:'Bright, premium, confident, helpful, agency-focused, compliant, clear, growth-minded, not spammy, not desperate.',avoid:'Avoid: cheap leads, guaranteed sales, unrealistic claims, aggressive compliance claims, spam language, copying competitor wording, pretending to be a customer if that is not true. For Reddit/Facebook, be transparent and useful; mention The Lead Boss softly only where natural.'}};
 let data=load();let calendar;
 let uploadCache={source:[],story:[],comment:[]};
 function load(){try{return {...defaultData,...JSON.parse(localStorage.getItem(LS)||'{}')}}catch(e){return defaultData}}
-function save(){localStorage.setItem(LS,JSON.stringify(data));refreshMetrics();scheduleCloudSave();}
+function save(){localStorage.setItem(LS,JSON.stringify(data));refreshMetrics();}
 function showModal(t){document.getElementById('modalText').textContent=t;document.getElementById('copyModal').classList.add('show');navigator.clipboard?.writeText(t).catch(()=>{});}function closeModal(){document.getElementById('copyModal').classList.remove('show')}
 let activeAssetTextarea=null;
 function openAssetEditor(btn){const card=btn.closest('.asset-card');activeAssetTextarea=card.querySelector('textarea');const name=card.querySelector('.asset-card-name');document.getElementById('assetEditTitle').textContent=name?name.textContent:(card.querySelector('h4')||{}).textContent||'Asset';document.getElementById('assetEditText').value=activeAssetTextarea.value;document.getElementById('assetEditModal').classList.add('show')}
@@ -647,160 +632,67 @@ Keep it premium, useful, agency-owner focused, authentic, and visually different
 }
 function buildPayload(mode){return {mode,brand:data.brand,source:{name:val('sourceName')||'Untitled Source',platform:val('sourcePlatform'),link:val('sourceLink'),text:val('sourceText')},images:uploadCache.source.map(x=>({name:x.name,type:x.type,dataUrl:x.dataUrl}))}}
 
-function getWorkerUrl(){
-  return (data.settings||{}).workerUrl||localStorage.getItem('tlb_worker_url')||'https://leadbossai.arianaisworking.workers.dev';
+function getFunctionUrl(){
+  const st=data.settings||{};
+  const base=(st.supabaseUrl||'').trim().replace(/\/+$/,'');
+  const fn=(st.functionName||'generate-content').trim().replace(/^\/+|\/+$/g,'');
+  if(!base) throw new Error('Supabase Project URL is missing. Go to Settings → Backend Connection.');
+  if(!st.supabaseAnonKey) throw new Error('Supabase anon key is missing. Go to Settings → Backend Connection.');
+  return base + '/functions/v1/' + fn;
 }
 async function callAI(mode, overridePayload){
-  var workerUrl = getWorkerUrl();
-  if(!workerUrl) throw new Error('No Worker URL set. Go to Settings and paste your Cloudflare Worker URL.');
-  var payload = overridePayload || buildPayload(mode);
-  var brand = payload.brand || {};
-  var source = payload.source || {};
-  var images = (payload.images||[]).filter(function(x){return x.dataUrl;});
-
-  var systemPrompt = 'You are The Lead Boss AI content strategist. '
-    + 'Brand: ' + (brand.company||'The Lead Boss') + '. '
-    + 'Core Message: ' + (brand.core||'') + '. '
-    + 'Offer: ' + (brand.offer||'') + '. '
-    + 'ICP: ' + (brand.icp||'') + '. '
-    + 'Tone: ' + (brand.tone||'') + '. '
-    + 'Guardrails: ' + (brand.avoid||'') + '. '
-    + 'Source: ' + (source.name||'') + '. '
-    + 'Platform: ' + (source.platform||'') + '. '
-    + 'Text: ' + (source.text||'');
-
-  var instructions = {
-    content: 'Generate a full content pack. Respond ONLY with valid JSON no backticks no preamble. Shape: {"assets":[{"title":"Name","content":"Text"}]}. Assets to include: AI Photo Analysis, Original Lead Boss Angle, LinkedIn Authority Post, Facebook Post, Carousel Slides with ChatGPT Image Prompts, Reel Script, YouTube Short, Industry Insight, Comment Question, Blog Outline, ChatGPT Image Prompt, ElevenLabs Voice Prompt, HeyGen Avatar Prompt, Calendar Suggestions.',
-    comments: 'Generate comment replies. Respond ONLY with valid JSON: {"assets":[{"title":"Voice Name","content":"Comment text"}]}. Include Lead Boss company voice, Ariana founder voice, Luisa customer voice if applicable, Reddit educational voice. Keep natural and not spammy.',
-    campaign: 'Generate a 5-day campaign plan. Respond ONLY with valid JSON: {"theme":"string","goal":"string","days":[{"day":"Monday","platform":"LinkedIn","type":"Post type","hook":"string","body":"string","cta":"string","tip":"string"}],"dm_script":"string","comment_angle":"string"}',
-    analyze: 'Analyze the content. Respond ONLY with valid JSON: {"assets":[{"title":"Name","content":"Analysis"}]}'
-  };
-
-  var instruction = instructions[mode] || instructions.content;
-  var fullPrompt = systemPrompt + ' ' + instruction;
-
-  var userContent;
-  if(images.length){
-    userContent = images.map(function(img){ return {type:'image_url', image_url:{url:img.dataUrl}}; });
-    userContent.push({type:'text', text: fullPrompt});
-  } else {
-    userContent = fullPrompt;
-  }
-
-  var res = await fetch(workerUrl, {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({model:'gpt-4o', max_tokens:1500, messages:[{role:'user', content:userContent}]})
+  const st=data.settings||{};
+  const payload = overridePayload || buildPayload(mode);
+  const res = await fetch(getFunctionUrl(), {
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'apikey':st.supabaseAnonKey,
+      'Authorization':'Bearer '+st.supabaseAnonKey
+    },
+    body:JSON.stringify(payload)
   });
-
-  var json = {};
-  try{ json = await res.json(); }catch(e){ throw new Error('Worker returned unreadable response.'); }
-  if(!res.ok || json.error) throw new Error((json.error&&json.error.message)||json.error||('Worker failed: '+res.status));
-
-  var raw = (json.choices&&json.choices[0]&&json.choices[0].message&&json.choices[0].message.content)||'';
-  var parsed;
-  try{ parsed = JSON.parse(raw.replace(/```json|```/g,'').trim()); }
-  catch(e){ return {assets:[{title:'AI Output', content:raw}]}; }
-  return parsed;
-}
-
-function getSupabaseRestBase(){
-  const st=data.settings||{};
-  return (st.supabaseUrl||'https://zjabbqdbguufkndqwjru.supabase.co').trim().replace(/\/+$/,'');
-}
-function cloudHeaders(){
-  const st=data.settings||{};
-  const key=st.supabaseAnonKey||'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqYWJicWRiZ3V1ZmtuZHF3anJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0OTA1NDgsImV4cCI6MjA5NjA2NjU0OH0.yexouM-hc1ZamPsl0fTBbXUhjFGB79n54kJMTck1QrE';
-  return {'Content-Type':'application/json','apikey':key,'Authorization':'Bearer '+key};
-}
-function cloudPayload(){
-  return {
-    calendar:data.calendar||[],
-    research:data.research||[],
-    packs:data.packs||[],
-    stories:data.stories||[],
-    directory:data.directory||[],
-    mission:data.mission||{},
-    focusTasks:data.focusTasks||[],
-    brand:data.brand||{},
-    updatedAt:new Date().toISOString()
-  };
-}
-let cloudSaveTimer=null;
-function scheduleCloudSave(){
-  // Auto-save whenever Supabase credentials are configured — no toggle needed
-  const s=data.settings||{};
-  if(!s.supabaseUrl||!s.supabaseAnonKey) return;
-  clearTimeout(cloudSaveTimer);
-  cloudSaveTimer=setTimeout(()=>saveCloudDataNow(true),900);
-}
-async function saveCloudDataNow(silent=false){
-  try{
-    const base=getSupabaseRestBase();
-    const payload=cloudPayload();
-    const res=await fetch(base+'/rest/v1/tlb_app_state',{
-      method:'POST',
-      headers:{...cloudHeaders(),'Prefer':'resolution=merge-duplicates,return=minimal'},
-      body:JSON.stringify({id:'shared',payload,updated_at:new Date().toISOString()})
-    });
-    if(!res.ok) throw new Error(await res.text());
-    const el=document.getElementById('cloudSyncStatus');
-    if(el) el.textContent='Shared memory saved: '+new Date().toLocaleString();
-    if(!silent) showModal('Shared Supabase memory saved successfully.');
-  }catch(err){
-    const msg='Shared memory save failed: '+(err.message||err);
-    const el=document.getElementById('cloudSyncStatus');
-    if(el) el.textContent=msg;
-    if(!silent) showModal(msg+'\n\nMake sure supabase/shared-memory.sql was run in Supabase SQL Editor.');
-  }
-}
-async function loadCloudData(){
-  try{
-    const base=getSupabaseRestBase();
-    const res=await fetch(base+'/rest/v1/tlb_app_state?id=eq.shared&select=payload,updated_at',{
-      method:'GET',headers:cloudHeaders()
-    });
-    if(!res.ok) throw new Error(await res.text());
-    const rows=await res.json();
-    if(!rows.length) return showModal('No shared memory found yet. Click Save Shared Memory first from the computer that has the current data.');
-    const incoming=rows[0].payload||{};
-    const currentSettings=data.settings||{};
-    data={...defaultData,...data,...incoming,settings:{...currentSettings,cloudSync:true}};
-    localStorage.setItem(LS,JSON.stringify(data));
-    renderAll();
-    const el=document.getElementById('cloudSyncStatus');
-    if(el) el.textContent='Shared memory loaded. Last cloud update: '+(rows[0].updated_at||'unknown');
-    showModal('Shared Supabase memory loaded. Last cloud update:\n'+(rows[0].updated_at||'unknown'));
-  }catch(err){
-    showModal('Shared memory load failed:\n\n'+(err.message||err)+'\n\nMake sure supabase/shared-memory.sql was run in Supabase SQL Editor.');
-  }
-}
-function renderAll(){
-  renderMission();renderFocusTasks();checkBrandWarning();updateBrandBrainStatus();refreshMetrics();fillBrand();renderDirectory();renderChannelButtons();renderResearch();renderStories();renderAssets();refreshCalendar();
+  let json={};
+  try{ json=await res.json(); }catch(e){ throw new Error('AI function returned an unreadable response.'); }
+  if(!res.ok || json.error) throw new Error(json.error || ('AI function failed with status '+res.status));
+  return json;
 }
 
 async function generatePack(mode){
   const prompt=buildPrompt(mode);
   const pack={id:Date.now()+'',date:new Date().toLocaleString(),source:val('sourceName')||'Untitled Source',prompt,assets:null};
   const researchItem={id:Date.now()+'r',date:new Date().toLocaleString(),source:pack.source,platform:val('sourcePlatform'),link:val('sourceLink'),text:val('sourceText').slice(0,500),photos:uploadCache.source.map(x=>({name:x.name,type:x.type,dataUrl:x.dataUrl}))};
+
   const box=document.getElementById('assetBucket');
-  box.innerHTML='<div style="text-align:center;padding:50px 20px;color:var(--muted);font-size:14px"><div style="font-size:36px;margin-bottom:12px">⏳</div>Generating your content pack...</div>';
+  box.innerHTML='<div style="text-align:center;padding:50px 20px;color:var(--muted);font-size:14px"><div style="font-size:36px;margin-bottom:12px">⏳</div>Generating your content pack through Supabase...</div>';
+
   try{
     const ai=await callAI(mode);
     const assets=ai.assets || (ai.raw ? [{title:'Generated Output',content:ai.raw}] : []);
     pack.assets=assets;
-    data.packs.unshift(pack);data.research.unshift(researchItem);save();renderAssetsFromAI(assets);renderResearch();flashAssetsSaved();setTimeout(()=>toggleAssetCard(0),50);
+    data.packs.unshift(pack);
+    data.research.unshift(researchItem);
+    save();
+    renderAssetsFromAI(assets);
+    renderResearch();
+    flashAssetsSaved();
+    setTimeout(()=>toggleAssetCard(0),50);
   }catch(err){
-    data.packs.unshift(pack);data.research.unshift(researchItem);save();renderResearch();
-    box.innerHTML='<div style="background:var(--blush);border:1px solid var(--blush2);border-radius:18px;padding:20px;color:var(--rose-dark)"><b>Could not generate: </b>'+escapeHtml(err.message)+'<br><br><span class="mini-note">Check Settings → Backend Connection and make sure your Worker URL is saved.</span></div>';
+    data.packs.unshift(pack);
+    data.research.unshift(researchItem);
+    save();
+    renderResearch();
+    box.innerHTML='<div style="background:var(--blush);border:1px solid var(--blush2);border-radius:18px;padding:20px;color:var(--rose-dark)"><b>Could not generate: </b>'+escapeHtml(err.message)+'<br><br><span class="mini-note">Check Settings → Backend Connection. OpenAI key should only be saved in Supabase Secrets as OPENAI_API_KEY.</span></div>';
   }
 }
+
 function copyMasterPrompt(mode){showModal(buildPrompt(mode))}
 function assetCardHTML(title, content='', index=0){
-  const preview = (content||'').replace(/\n/g,' ').trim().slice(0,80);
-  const hasContent = (content||'').trim().length > 0;
-  return `<div class="asset-card" id="acard-${index}">
-    <div class="asset-card-header" onclick="toggleAssetCard(${index})">
+  const safeContent = normalizeAssetContent(content||'');
+  const preview = safeContent.replace(/\n/g,' ').trim().slice(0,80);
+  const hasContent = safeContent.trim().length > 0;
+  return `<div class="asset-card">
+    <div class="asset-card-header" onclick="toggleAssetCardFromHeader(this)">
       <div class="asset-card-title">
         <span class="asset-card-num">${index+1}</span>
         <span class="asset-card-name">${escapeHtml(title||'Asset')}</span>
@@ -809,28 +701,55 @@ function assetCardHTML(title, content='', index=0){
       <span class="asset-card-chevron">▾</span>
     </div>
     <div class="asset-card-body">
-      <textarea id="atextarea-${index}" placeholder="AI output appears here...">${escapeHtml(content||'')}</textarea>
+      <textarea placeholder="AI output appears here...">${escapeHtml(safeContent)}</textarea>
       <div class="asset-card-actions">
-        <button class="btn secondary small" onclick="openAssetEditorById(${index}, '${escapeHtml(title||'Asset')}')">✏️ Full Edit</button>
-        <button class="btn secondary small" onclick="copyAssetById(${index}, this)">Copy</button>
+        <button class="btn secondary small" onclick="openAssetEditorFromButton(this)">✏️ Full Edit</button>
+        <button class="btn secondary small" onclick="copyAssetFromButton(this)">Copy</button>
       </div>
     </div>
   </div>`;
 }
 function toggleAssetCard(index){
-  const card=document.getElementById('acard-'+index);
+  const cards=[...document.querySelectorAll('.asset-card')].filter(c=>c.offsetParent!==null);
+  if(cards[index]) cards[index].classList.toggle('open');
+}
+function toggleAssetCardFromHeader(header){
+  const card=header.closest('.asset-card');
   if(card) card.classList.toggle('open');
 }
-function openAssetEditorById(index, title){
-  const ta=document.getElementById('atextarea-'+index);
+function openAssetEditorFromButton(btn){
+  const card=btn.closest('.asset-card');
+  const ta=card ? card.querySelector('textarea') : null;
   if(!ta) return;
+  const name=card.querySelector('.asset-card-name');
   activeAssetTextarea=ta;
-  document.getElementById('assetEditTitle').textContent=title;
+  document.getElementById('assetEditTitle').textContent=name ? name.textContent : 'Asset';
   document.getElementById('assetEditText').value=ta.value;
   document.getElementById('assetEditModal').classList.add('show');
 }
+function openAssetEditorById(index, title){
+  const cards=[...document.querySelectorAll('.asset-card')].filter(c=>c.offsetParent!==null);
+  const card=cards[index] || document.querySelectorAll('.asset-card')[index];
+  const ta=card ? card.querySelector('textarea') : null;
+  if(!ta) return;
+  activeAssetTextarea=ta;
+  document.getElementById('assetEditTitle').textContent=title || ((card.querySelector('.asset-card-name')||{}).textContent) || 'Asset';
+  document.getElementById('assetEditText').value=ta.value;
+  document.getElementById('assetEditModal').classList.add('show');
+}
+function copyAssetFromButton(btn){
+  const card=btn.closest('.asset-card');
+  const ta=card ? card.querySelector('textarea') : null;
+  if(!ta) return;
+  navigator.clipboard.writeText(ta.value).then(()=>{
+    const orig=btn.textContent; btn.textContent='Copied!';
+    setTimeout(()=>btn.textContent=orig, 1400);
+  });
+}
 function copyAssetById(index, btn){
-  const ta=document.getElementById('atextarea-'+index);
+  const cards=[...document.querySelectorAll('.asset-card')].filter(c=>c.offsetParent!==null);
+  const card=cards[index] || document.querySelectorAll('.asset-card')[index];
+  const ta=card ? card.querySelector('textarea') : null;
   if(!ta) return;
   navigator.clipboard.writeText(ta.value).then(()=>{
     const orig=btn.textContent; btn.textContent='Copied!';
@@ -967,9 +886,10 @@ async function runStoryGenerate(story){
   const outputBucket=document.getElementById('storyOutputBucket');
   const outputTitle=document.getElementById('storyOutputTitle');
   outputTitle.textContent='Generating from: '+story.title;
-  outputBucket.innerHTML='<div style="text-align:center;padding:40px 20px;color:var(--muted);font-size:14px"><div style="font-size:32px;margin-bottom:10px">⏳</div>Reading screenshots + building content...</div>';
+  outputBucket.innerHTML='<div style="text-align:center;padding:40px 20px;color:var(--muted);font-size:14px"><div style="font-size:32px;margin-bottom:10px">⏳</div>Reading screenshots + building content through Supabase...</div>';
   outputCard.style.display='block';
   outputCard.scrollIntoView({behavior:'smooth',block:'start'});
+
   const storyText=`Pain Point Type: ${story.type}
 Title: ${story.title}
 Notes: ${story.details||'None'}
@@ -981,51 +901,26 @@ Create content that speaks directly to this pain point and positions The Lead Bo
     source:{name:story.title||'Pain Point',platform:'Pain → Content',link:'',text:storyText,visual:'Analyze attached screenshots for the underlying complaint or frustration.'},
     images:(story.photos||[]).map(x=>({name:x.name,type:x.type,dataUrl:x.dataUrl}))
   };
+
   try{
     const ai=await callAI('content', payload);
     const assets=ai.assets || (ai.raw ? [{title:'Generated Output',content:ai.raw}] : []);
     outputTitle.textContent='Content from: '+story.title;
     outputBucket.innerHTML='';
-    assets.forEach((a,i)=>{outputBucket.innerHTML+=assetCardHTML(a.title,a.content,i);});
-    if(assets.length) setTimeout(()=>toggleAssetCard(0),50);
+    assets.forEach((a,i)=>{outputBucket.innerHTML+=assetCardHTML(a.title||('Asset '+(i+1)), normalizeAssetContent(a.content??a.text??a.value??a), i);});
+    if(assets.length) setTimeout(()=>{const first=outputBucket.querySelector('.asset-card'); if(first) first.classList.add('open');},50);
   }catch(err){
     outputBucket.innerHTML='<div style="background:var(--blush);border:1px solid var(--blush2);border-radius:18px;padding:18px;color:var(--rose-dark)"><b>Error: </b>'+escapeHtml(err.message)+'</div>';
   }
 }
-async function generateComments(){
-  const platform=val('commentPlatform');
-  const input=val('commentInput');
-  const box=document.getElementById('commentBank');
-  if(!input && !(uploadCache.comment||[]).length){
-    alert('Paste a thread/post/question or upload a screenshot first.');
-    return;
-  }
-  box.innerHTML='<div class="comment-card" style="grid-column:1/-1;text-align:center;padding:35px;color:var(--muted)"><div style="font-size:30px;margin-bottom:10px">⏳</div>Generating comment replies...</div>';
-  const payload={
-    mode:'comments',
-    brand:data.brand,
-    source:{
-      name:'Comment Marketing Thread',
-      platform,
-      link:'',
-      text:`Platform: ${platform}\n\nThread/Post/Question:\n${input}\n\nGenerate realistic, useful comment replies for The Lead Boss community engagement. Include separate versions for Luisa/customer voice when appropriate, The Lead Boss company page voice, Ariana/founder voice, and Reddit-safe educational voice. Keep it natural, not spammy.`,
-      visual:'If screenshots are attached, read the thread/post and adapt the replies to that context.'
-    },
-    images:(uploadCache.comment||[]).map(x=>({name:x.name,type:x.type,dataUrl:x.dataUrl}))
-  };
-  try{
-    const ai=await callAI('comments', payload);
-    const assets=ai.assets || (ai.raw ? [{title:'AI Comment Bank',content:ai.raw}] : []);
-    renderCommentAssets(assets);
-  }catch(err){
-    box.innerHTML='<div class="comment-card" style="grid-column:1/-1;color:var(--rose-dark);background:var(--blush)"><h4>Comment AI failed</h4><textarea>'+escapeHtml(err.message)+'\n\nCheck Settings → Backend Connection and make sure your Worker URL is saved.</textarea></div>';
-  }
-}
-function renderCommentAssets(assets){
-  const box=document.getElementById('commentBank');
-  const list=Array.isArray(assets)?assets:[{title:'AI Comment Bank',content:normalizeAssetContent(assets)}];
-  box.innerHTML=list.map((a,i)=>`<div class="comment-card"><h4>${escapeHtml(a.title||('Reply Set '+(i+1)))}</h4><textarea>${escapeHtml(normalizeAssetContent(a.content??a.text??a.value??a))}</textarea><button class="btn secondary small" onclick="navigator.clipboard.writeText(this.previousElementSibling.value)">Copy</button></div>`).join('');
-}
+
+function generateComments(){const platform=val('commentPlatform'),input=val('commentInput');const buckets={
+'Helpful Reply':`A useful, non-salesy reply for ${platform}:\n\nA lot of agencies run into this when they focus on lead count instead of conversation quality. One strong filter is asking: will this source actually increase agent talk time, or just add more names to chase?`,
+'Thought Leadership':`Authority-building reply for ${platform}:\n\nThe hidden issue is usually operations, not just marketing. If the agency cannot handle consistent transfer volume, even a good lead source gets wasted. Capacity and follow-up matter as much as lead flow.`,
+'Soft Lead Boss Mention':`Soft mention for ${platform}:\n\nWe've seen The Lead Boss positioned more for agencies that need meaningful transfer volume rather than solo-agent lead buying. Worth looking at if the operation can actually handle scale.`,
+'Follow-Up Question':`Follow-up question for ${platform}:\n\nAre you trying to increase total lead volume, or are you trying to get your agents into more real conversations each day? Those are two different problems.`,
+'Reddit Careful Reply':`Careful Reddit-style reply:\n\nI would be cautious with any vendor until you know your close rate, daily capacity, and return per call. Larger Medicare teams usually need transfer volume, but solo agents may be better off optimizing follow-up first.`
+};document.getElementById('commentBank').innerHTML=Object.entries(buckets).map(([k,v])=>`<div class="comment-card"><h4>${k}</h4><textarea>${v}\n\nContext used: ${input.slice(0,180)}</textarea><button class="btn secondary small" onclick="navigator.clipboard.writeText(this.previousElementSibling.value)">Copy</button></div>`).join('')}
 function copyCommentBank(){showModal([...document.querySelectorAll('#commentBank textarea')].map(x=>x.value).join('\n\n---\n\n')||'No comments generated yet.')}
 function saveBrand(){
   data.brand={company:val('brandCompany'),email:val('brandEmail'),core:val('brandCore'),offer:val('brandOffer'),icp:val('brandICP'),tone:val('brandTone'),avoid:val('brandAvoid')};
@@ -1045,51 +940,17 @@ function fillBrand(){
   document.getElementById('brandICP').value=b.icp||'';
   document.getElementById('brandTone').value=b.tone||'';
   document.getElementById('brandAvoid').value=b.avoid||'';
-  document.getElementById('setSupabaseUrl').value=(data.settings||{}).supabaseUrl||'https://zjabbqdbguufkndqwjru.supabase.co';
-  document.getElementById('setSupabaseAnon').value=(data.settings||{}).supabaseAnonKey||'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqYWJicWRiZ3V1ZmtuZHF3anJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0OTA1NDgsImV4cCI6MjA5NjA2NjU0OH0.yexouM-hc1ZamPsl0fTBbXUhjFGB79n54kJMTck1QrE';
+  document.getElementById('setSupabaseUrl').value=(data.settings||{}).supabaseUrl||'';
+  document.getElementById('setSupabaseAnon').value=(data.settings||{}).supabaseAnonKey||'';
   document.getElementById('setFunctionName').value=(data.settings||{}).functionName||'generate-content';
-  const wEl=document.getElementById('setWorkerUrl');if(wEl) wEl.value=(data.settings||{}).workerUrl||localStorage.getItem('tlb_worker_url')||getWorkerUrl();
-  // cloudSync auto-determined from credentials — no checkbox needed
   // Show warning if brand is empty
   const isEmpty=!b.company&&!b.offer&&!b.icp;
   const notice=document.getElementById('brandNotice');
   if(notice) notice.style.display=isEmpty?'flex':'none';
   if(isEmpty) toggleAccordion('accBrand');
 }
-function saveWorkerUrl(){
-  const url=document.getElementById('setWorkerUrl').value.trim();
-  if(!url) return alert('Paste your Cloudflare Worker URL first.');
-  if(!data.settings) data.settings={};
-  data.settings.workerUrl=url;
-  localStorage.setItem('tlb_worker_url',url);
-  save();
-  const btn=event.target;
-  const orig=btn.textContent;
-  btn.textContent='✓ Saved!';btn.style.background='var(--success)';
-  setTimeout(()=>{btn.textContent=orig;btn.style.background='';},1800);
-}
-function saveSettings(){
-  const url=val('setSupabaseUrl')||'https://zjabbqdbguufkndqwjru.supabase.co';
-  const key=val('setSupabaseAnon')||val('setSupabaseAnonKey')||'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqYWJicWRiZ3V1ZmtuZHF3anJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0OTA1NDgsImV4cCI6MjA5NjA2NjU0OH0.yexouM-hc1ZamPsl0fTBbXUhjFGB79n54kJMTck1QrE';
-  const wUrl=val('setWorkerUrl')||'https://leadbossai.arianaisworking.workers.dev';
-  data.settings={...(data.settings||{}),supabaseUrl:url,supabaseAnonKey:key,functionName:val('setFunctionName')||'generate-content',cloudSync:true,workerUrl:wUrl};
-  save();
-  const el=document.getElementById('cloudSyncStatus');
-  if(el) el.textContent='✓ Shared memory active — auto-saves every change.';
-}
-async function testBackendConnection(){
-  const workerUrl=getWorkerUrl();
-  if(!workerUrl) return alert('Save your Worker URL in Settings first.');
-  try{
-    const res=await fetch(workerUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'gpt-4o',max_tokens:50,messages:[{role:'user',content:'Reply with: CONNECTED'}]})});
-    const d=await res.json();
-    if(d.error) throw new Error(d.error.message||JSON.stringify(d.error));
-    const reply=d.choices?.[0]?.message?.content||'';
-    showModal('✓ Worker connection successful!\n\nOpenAI replied: '+reply);
-  }catch(err){
-    showModal('Connection failed:\n\n'+err.message+'\n\nChecklist:\n1. Is OPENAI_API_KEY set in your Cloudflare Worker environment variables?\n2. Is your Worker deployed?\n3. Is the Worker URL correct?');
-  }
-}
+function saveSettings(){data.settings={...(data.settings||{}),supabaseUrl:val('setSupabaseUrl'),supabaseAnonKey:val('setSupabaseAnon'),functionName:val('setFunctionName')||'generate-content'};save();}
+async function testBackendConnection(){try{const st=data.settings||{};if(!st.supabaseUrl||!st.supabaseAnonKey) return alert('Save Supabase URL and anon key first.');const oldName=document.getElementById('sourceName').value;const oldText=document.getElementById('sourceText').value;document.getElementById('sourceName').value='Backend Test';document.getElementById('sourceText').value='Create a short test content pack about Medicare live transfers for agency owners.';const ai=await callAI('content');showModal('AI connection successful. Response preview:\n\n'+JSON.stringify(ai,null,2).slice(0,2500));document.getElementById('sourceName').value=oldName;document.getElementById('sourceText').value=oldText;}catch(err){showModal('AI connection failed:\n\n'+err.message+'\n\nChecklist:\n1. Is OPENAI_API_KEY saved in Supabase Secrets?\n2. Is generate-content deployed?\n3. Is Supabase URL correct?\n4. Is anon key correct?')}}
 const CHANNEL_PRESETS=[
   {name:'Meta Business Suite', icon:'📘', url:'https://business.facebook.com', notes:'Schedule Facebook and Instagram posts/reels. Save final captions in the calendar item before scheduling.'},
   {name:'LinkedIn Page', icon:'💼', url:'https://www.linkedin.com/company/', notes:'Schedule authority posts and articles. Use agency-owner tone, not consumer tone.'},
@@ -1102,6 +963,7 @@ const CHANNEL_PRESETS=[
   {name:'HeyGen', icon:'🎬', url:'https://www.heygen.com', notes:'Paste HeyGen Avatar Prompts from the Content Factory. Keep the same business-casual avatar for brand consistency.'},
   {name:'Google Drive', icon:'📁', url:'https://drive.google.com', notes:'Store all generated content, assets, and media files here. Organize by month and platform.'},
 ];
+
 function renderDirectory(){
   const el=document.getElementById('directoryList');
   if(!el) return;
@@ -1119,6 +981,7 @@ function renderDirectory(){
     </div>`;
   });
 }
+
 function renderChannelButtons(){
   const container=document.getElementById('channelButtons');
   if(!container) return;
@@ -1204,9 +1067,15 @@ async function fetchUrl(){
   const status = document.getElementById('fetchStatus');
   const btn = document.getElementById('fetchBtn');
   const textarea = document.getElementById('sourceText');
+
   if(!url) { status.textContent = 'Paste a URL first.'; return; }
   if(!/^https?:\/\//i.test(url)) { status.textContent = 'URL must start with http:// or https://'; return; }
-  btn.textContent='Fetching...'; btn.disabled=true; status.style.color='var(--muted)'; status.textContent='Trying to read the public page...';
+
+  btn.textContent='Fetching...';
+  btn.disabled=true;
+  status.style.color='var(--muted)';
+  status.textContent='Trying to read the public page...';
+
   const stripHtml=(html)=>html
     .replace(/<style[^>]*>[\s\S]*?<\/style>/gi,' ')
     .replace(/<script[^>]*>[\s\S]*?<\/script>/gi,' ')
@@ -1220,11 +1089,14 @@ async function fetchUrl(){
     .replace(/&quot;/g,'"')
     .replace(/\s+/g,' ')
     .trim();
+
   const readerUrls=[
+    'https://r.jina.ai/http://r.jina.ai/http://' + url.replace(/^https?:\/\//,''),
     'https://r.jina.ai/http://' + url.replace(/^https?:\/\//,''),
     'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
     'https://corsproxy.io/?' + encodeURIComponent(url)
   ];
+
   let lastErr='';
   for(const reader of readerUrls){
     try{
@@ -1240,15 +1112,22 @@ async function fetchUrl(){
         }
         status.style.color='var(--success)';
         status.textContent='✓ Loaded '+txt.length.toLocaleString()+' characters. Review, clean if needed, then generate.';
-        btn.textContent='Fetch URL'; btn.disabled=false; return;
+        btn.textContent='Fetch URL';
+        btn.disabled=false;
+        return;
       }
       lastErr='Reader produced too little text.';
-    }catch(err){ lastErr=err.message; }
+    }catch(err){
+      lastErr=err.message;
+    }
   }
+
   status.style.color='var(--danger)';
   status.textContent='✗ Could not fetch this page automatically. Many sites block readers. Open the link, copy the article/transcript manually, and paste it into the notes box.';
-  btn.textContent='Fetch URL'; btn.disabled=false;
+  btn.textContent='Fetch URL';
+  btn.disabled=false;
 }
+
 
 function closeWeeklyModal(){document.getElementById('weeklyModal').classList.remove('show')}
 
@@ -1259,22 +1138,28 @@ async function generateWeeklyCampaign(){
   const body=document.getElementById('weeklyModalBody');
   const title=document.getElementById('weeklyModalTitle');
   title.textContent='Generating your campaign...';
-  body.innerHTML='<div style="text-align:center;padding:60px 0;color:var(--muted);font-size:14px"><div style="font-size:32px;margin-bottom:12px">⏳</div>Building your weekly campaign plan...</div>';
+  body.innerHTML='<div style="text-align:center;padding:60px 0;color:var(--muted);font-size:14px"><div style="font-size:32px;margin-bottom:12px">⏳</div>Building your weekly campaign plan through Supabase...</div>';
   modal.classList.add('show');
+
   const payload={
     mode:'campaign',
     brand:data.brand,
     source:{name,platform:val('sourcePlatform')||'Weekly Campaign',link:val('sourceLink'),text:source||'General Medicare live transfer agency growth',visual:''},
     images:uploadCache.source.map(x=>({name:x.name,type:x.type,dataUrl:x.dataUrl}))
   };
+
   try{
     const ai=await callAI('campaign', payload);
-    if(ai.days && Array.isArray(ai.days)){ renderWeeklyCampaign(ai); return; }
+    // If the Edge Function returns normal assets instead of campaign JSON, show them as a readable generated bucket inside the modal.
+    if(ai.days && Array.isArray(ai.days)){
+      renderWeeklyCampaign(ai);
+      return;
+    }
     const assets=ai.assets || (ai.raw ? [{title:'Generated Campaign',content:ai.raw}] : []);
     title.textContent='Weekly Campaign Plan';
-    body.innerHTML=assets.map((a,i)=>assetCardHTML(a.title||('Asset '+(i+1)), normalizeAssetContent(a.content||a), i)).join('');
+    body.innerHTML=assets.map((a,i)=>`<div class="asset-card open" style="margin-bottom:10px">${assetCardHTML(a.title||('Asset '+(i+1)), normalizeAssetContent(a.content||a), i)}</div>`).join('');
   }catch(err){
-    body.innerHTML='<div style="background:var(--blush);border:1px solid var(--blush2);border-radius:18px;padding:20px;color:var(--rose-dark)"><b>Error: </b>'+escapeHtml(err.message)+'<br><br><span style="font-size:13px;color:var(--muted)">Make sure your Worker URL is saved in Settings → Backend Connection.</span></div>';
+    body.innerHTML='<div style="background:var(--blush);border:1px solid var(--blush2);border-radius:18px;padding:20px;color:var(--rose-dark)"><b>Error: </b>'+escapeHtml(err.message)+'<br><br><span style="font-size:13px;color:var(--muted)">OpenAI key must be stored in Supabase Secrets as OPENAI_API_KEY.</span></div>';
     title.textContent='Weekly Campaign Plan';
   }
 }
@@ -1339,14 +1224,7 @@ function copyDayPost(btn){
 }
 
 
-function boot(){renderMission();renderFocusTasks();
-  // Auto-load from Supabase on every page load if credentials are set
-  const s=data.settings||{};
-  if(s.supabaseUrl&&s.supabaseAnonKey){
-    const el=document.getElementById('cloudSyncStatus');
-    if(el) el.textContent='Syncing shared memory...';
-    loadCloudData().catch(()=>{});
-  }checkBrandWarning();updateBrandBrainStatus();refreshMetrics();fillBrand();seedDirectory();renderDirectory();renderChannelButtons();renderResearch();renderStories();renderAssets();initCalendar();}
+function boot(){renderMission();renderFocusTasks();checkBrandWarning();updateBrandBrainStatus();refreshMetrics();fillBrand();seedDirectory();renderDirectory();renderChannelButtons();renderResearch();renderStories();renderAssets();initCalendar();}
 boot();
 </script>
 </body>
