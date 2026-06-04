@@ -700,37 +700,36 @@ async function callAI(mode, overridePayload){
     userContent = fullPrompt;
   }
 
-  // AI now routes through the Supabase Edge Function only.
-  // Edge Function URL is built from: Supabase Project URL + Function Name.
-  // Required headers are supplied by callSupabaseFunction(): apikey + Authorization Bearer anon key.
-  var edgePayload = {
-    mode: mode,
-    action: 'generate',
-    brand: brand,
-    source: source,
-    images: images,
-    prompt: fullPrompt,
+  // Route through Cloudflare Worker (which holds the OpenAI API key securely)
+  var workerUrl = getWorkerUrl();
+  if(!workerUrl) throw new Error('No Cloudflare Worker URL set. Go to Settings and save your Worker URL.');
+
+  var workerPayload = {
     model: 'gpt-4o',
-    max_tokens: 1800,
-    messages: [{role:'user', content:userContent}]
+    max_tokens: 2000,
+    messages: [{role: 'user', content: userContent}]
   };
 
-  var json = await callSupabaseFunction(edgePayload);
+  var response = await fetch(workerUrl, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(workerPayload)
+  });
 
-  // Accept multiple possible Edge Function response shapes so the frontend does not break
-  // if the function returns OpenAI-style data, direct JSON, or a raw text field.
-  if(json.assets || json.days || json.theme) return json;
-  if(json.data && (json.data.assets || json.data.days || json.data.theme)) return json.data;
-  if(json.result && (json.result.assets || json.result.days || json.result.theme)) return json.result;
+  if(!response.ok){
+    var errText = await response.text();
+    throw new Error('Worker error ' + response.status + ': ' + errText);
+  }
 
-  var raw = json.output || json.text || json.content || json.raw || json.response ||
-    (json.choices&&json.choices[0]&&json.choices[0].message&&json.choices[0].message.content) ||
-    (json.data&&(json.data.output||json.data.text||json.data.content||json.data.raw)) ||
-    (json.result&&(json.result.output||json.result.text||json.result.content||json.result.raw)) || '';
+  var json = await response.json();
 
-  if(typeof raw !== 'string') raw = JSON.stringify(raw,null,2);
-  try{ return JSON.parse(raw.replace(/```json|```/g,'').trim()); }
-  catch(e){ return {assets:[{title:'AI Output', content:raw || JSON.stringify(json,null,2)}]}; }
+  // Extract OpenAI response text
+  var raw = (json.choices && json.choices[0] && json.choices[0].message && json.choices[0].message.content) || '';
+  if(!raw) throw new Error('No response from OpenAI. Check your Worker and API key.');
+
+  var cleaned = raw.replace(/```json\s*/g,'').replace(/```\s*/g,'').trim();
+  try{ return JSON.parse(cleaned); }
+  catch(e){ return {assets:[{title:'AI Output', content: raw}]}; }
 }
 
 function getSupabaseRestBase(){
