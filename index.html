@@ -809,7 +809,7 @@ async function saveCloudDataNow(silent=false){
     if(!silent) showModal(msg+'\n\nMake sure supabase/shared-memory.sql was run in Supabase SQL Editor.');
   }
 }
-async function loadCloudData(){
+async function loadCloudData(silent=false){
   try{
     const base=getSupabaseRestBase();
     const res=await fetch(base+'/rest/v1/tlb_app_state?id=eq.shared&select=payload,updated_at',{
@@ -817,17 +817,24 @@ async function loadCloudData(){
     });
     if(!res.ok) throw new Error(await res.text());
     const rows=await res.json();
-    if(!rows.length) return showModal('No shared memory found yet. Click Save Shared Memory first from the computer that has the current data.');
+    const el=document.getElementById('cloudSyncStatus');
+    if(!rows.length){
+      if(!silent) showModal('No shared memory found yet. Click Save Shared Memory first from the computer that has the current data.');
+      if(el) el.textContent='No shared memory found yet — click Save Shared Memory first.';
+      return;
+    }
     const incoming=rows[0].payload||{};
     const currentSettings=data.settings||{};
     data={...defaultData,...data,...incoming,settings:{...currentSettings,cloudSync:true}};
     localStorage.setItem(LS,JSON.stringify(data));
     renderAll();
-    const el=document.getElementById('cloudSyncStatus');
-    if(el) el.textContent='Shared memory loaded. Last cloud update: '+(rows[0].updated_at||'unknown');
-    showModal('Shared Supabase memory loaded. Last cloud update:\n'+(rows[0].updated_at||'unknown'));
+    const ts=rows[0].updated_at ? new Date(rows[0].updated_at).toLocaleString() : 'unknown';
+    if(el) el.textContent='✓ Synced — last update: '+ts;
+    if(!silent) showModal('Shared memory loaded. Last update: '+ts);
   }catch(err){
-    showModal('Shared memory load failed:\n\n'+(err.message||err)+'\n\nMake sure supabase/shared-memory.sql was run in Supabase SQL Editor.');
+    const el=document.getElementById('cloudSyncStatus');
+    if(el) el.textContent='⚠ Sync failed: '+(err.message||err);
+    if(!silent) showModal('Shared memory load failed:\n\n'+(err.message||err));
   }
 }
 function renderAll(){
@@ -1399,12 +1406,12 @@ function copyDayPost(btn){
 
 
 function boot(){renderMission();renderFocusTasks();
-  // Auto-load from Supabase on every page load if credentials are set
+  // Auto-load from Supabase silently on every page load if credentials are set
   const s=data.settings||{};
   if(s.supabaseUrl&&s.supabaseAnonKey){
     const el=document.getElementById('cloudSyncStatus');
-    if(el) el.textContent='Syncing shared memory...';
-    loadCloudData().catch(()=>{});
+    if(el) el.textContent='Syncing...';
+    loadCloudData(true).catch(()=>{});
   }checkBrandWarning();updateBrandBrainStatus();refreshMetrics();fillBrand();seedDirectory();renderDirectory();renderChannelButtons();renderResearch();renderStories();renderAssets();initCalendar();}
 boot();
 </script>
