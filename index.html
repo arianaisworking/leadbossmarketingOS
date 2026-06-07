@@ -72,6 +72,48 @@ button,input,textarea,select{font:inherit}a,button,.tab-btn,.btn,.asset-card-hea
 .channel-card:focus{outline:none;box-shadow:0 0 0 4px rgba(198,95,126,.14)}
 @media(max-width:1100px){.span-8,.span-7,.span-6,.span-5,.span-4,.span-3{grid-column:span 12}.calendar-form{grid-template-columns:1fr 1fr}.comment-bank{grid-template-columns:1fr}.mission-list{grid-template-columns:1fr}}
 @media(max-width:700px){.header-inner{align-items:flex-start;flex-direction:column}.layout{padding:14px}.hero h2{font-size:25px}.row,.row3{grid-template-columns:1fr}.calendar-form{grid-template-columns:1fr}.top-actions{flex-wrap:wrap}}
+
+/* ── Database + Pipeline ── */
+.pl-board{display:flex;gap:14px;overflow-x:auto;padding-bottom:20px;min-height:320px}
+.pl-col{min-width:200px;flex:0 0 200px;display:flex;flex-direction:column;gap:0}
+.pl-col-hd{display:flex;align-items:center;justify-content:space-between;padding:0 2px 10px}
+.pl-col-label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.08em}
+.pl-col-count{font-size:11px;color:var(--muted);font-weight:700;background:var(--gray);padding:2px 8px;border-radius:999px}
+.pl-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:13px;cursor:pointer;transition:all .15s;margin-bottom:8px}
+.pl-card:hover{border-color:var(--blush2);box-shadow:0 6px 18px rgba(198,95,126,.12);transform:translateY(-2px)}
+.pl-card h5{margin:0 0 2px;font-size:13px;font-weight:800;color:var(--ink);line-height:1.3}
+.pl-card .pl-sub{margin:0 0 8px;font-size:11px;color:var(--muted)}
+.pl-tags{display:flex;flex-wrap:wrap;gap:4px}
+.pl-tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px}
+.pl-empty{font-size:12px;color:var(--muted);padding:18px 12px;text-align:center;border:1.5px dashed var(--line);border-radius:14px;background:var(--gray)}
+.attempt-log{display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto}
+.attempt-row{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;background:var(--gray);border-radius:12px;font-size:12px}
+.attempt-ch{font-weight:800;color:var(--rose-dark);flex-shrink:0;font-size:11px}
+.attempt-dt{color:var(--muted);white-space:nowrap;font-size:10px;flex-shrink:0}
+.pl-search-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px;padding:14px 16px;background:linear-gradient(135deg,#fff,#fff8fb);border:1px solid var(--line);border-radius:20px}
+.cl-card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:18px;transition:all .15s;cursor:pointer}
+.cl-card:hover{border-color:var(--champagne);box-shadow:0 6px 20px rgba(185,138,50,.12);transform:translateY(-2px)}
+.cl-card.fex{border-left:3px solid var(--rose)}
+.cl-card.medicare{border-left:3px solid #22d3ee}
+.cl-card.meta{border-left:3px solid var(--champagne)}
+.order-row{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--gray);border-radius:12px;font-size:12px;margin-bottom:6px}
+.nurture-row{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;background:linear-gradient(135deg,#fffdf5,#fff);border:1px solid rgba(185,138,50,.2);border-radius:12px;font-size:12px;margin-bottom:5px}
+
+.db-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line);transition:background .12s}
+.db-row:last-child{border-bottom:0}
+.db-row:hover{background:#fff8fb}
+.db-name{font-weight:800;font-size:13px;flex:2;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.db-phone{font-size:12px;color:var(--ink);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.db-email{font-size:12px;color:var(--rose);flex:1.5;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.db-site{font-size:12px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.db-site a{color:var(--rose);text-decoration:none}
+.db-site a:hover{text-decoration:underline}
+.db-head{display:flex;align-items:center;gap:12px;padding:8px 16px;background:var(--gray);border-radius:14px 14px 0 0;border-bottom:2px solid var(--line)}
+.db-head span{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.db-head span:first-child{flex:2}.db-head span:nth-child(2){flex:1}.db-head span:nth-child(3){flex:1.5}.db-head span:nth-child(4){flex:1}.db-head span:last-child{flex:0 0 88px}
+.db-name{flex:2}.db-phone{flex:1}.db-email{flex:1.5}.db-site{flex:1}
+.invoice-box{background:linear-gradient(135deg,var(--cream),#fff);border:1px solid var(--line);border-radius:18px;padding:14px}
+
 </style>
 </head>
 <body>
@@ -92,6 +134,9 @@ button,input,textarea,select{font:inherit}a,button,.tab-btn,.btn,.asset-card-hea
     <button class="tab-btn" data-page="story">Pain → Content</button>
     <button class="tab-btn" data-page="community">Comment Marketing</button>
     <button class="tab-btn" data-page="directory">Social Directory</button>
+    <button class="tab-btn" data-page="database">Database</button>
+    <button class="tab-btn" data-page="pipeline">Pipeline</button>
+    <button class="tab-btn" data-page="clients">Clients 🌟</button>
   </div>
 
   <section id="dashboard" class="page active">
@@ -434,7 +479,288 @@ button,input,textarea,select{font:inherit}a,button,.tab-btn,.btn,.asset-card-hea
     </div>
   </section>
 
-    <p class="footer-note">The Lead Boss Marketing OS v4.0 • Supabase AI only • Shared memory ready</p>
+  
+  <!-- ═══════════════════════════ DATABASE ═══════════════════════════ -->
+  <section id="database" class="page">
+    <div class="hero" style="margin-bottom:18px">
+      <div class="kicker">Scraped Agency Database</div>
+      <h2 style="font-size:28px">Agency Database</h2>
+      <p style="margin-bottom:0">Medicare and Final Expense agencies scraped from Google Maps and enriched with emails. One click pushes any record straight into your Pipeline.</p>
+    </div>
+    <div class="grid">
+      <div class="card span-12">
+        <div class="section-title">
+          <div><h3>Agency Records</h3><p id="dbCountLabel">Click Refresh to load from Supabase.</p></div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <input id="dbSearch" placeholder="Search name or city…" style="width:220px;margin:0" oninput="dbFilter()">
+            <select id="dbEmailOnly" style="width:170px;margin:0" onchange="dbFilter()">
+              <option value="">All records</option>
+              <option value="1">Email found only</option>
+            </select>
+            <button class="btn blush small" onclick="loadDB()">↻ Refresh</button>
+          </div>
+        </div>
+        <div style="border:1px solid var(--line);border-radius:18px;overflow:hidden;margin-top:4px">
+          <div class="db-head">
+            <span>Agency</span><span>Phone</span><span>Email</span><span>Website</span>
+            <span style="flex:0 0 88px">Action</span>
+          </div>
+          <div id="dbList" style="max-height:560px;overflow-y:auto"></div>
+        </div>
+        <div id="dbPages" style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:12px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════ PIPELINE ═══════════════════════════ -->
+  <section id="pipeline" class="page">
+    <div class="hero" style="margin-bottom:18px">
+      <div class="kicker">Sales Pipeline</div>
+      <h2 style="font-size:28px">Lead Pipeline</h2>
+      <p style="margin-bottom:0">Track every prospect from first contact to closed. When a deal closes, hit "Move to Clients" and they graduate to the Clients tab.</p>
+    </div>
+    <div class="grid" style="margin-bottom:18px">
+      <div class="card span-3"><div class="metric"><span>Total Leads</span><b id="plStat0">0</b><span>in pipeline</span></div></div>
+      <div class="card span-3"><div class="metric"><span>Active</span><b id="plStat1">0</b><span>in progress</span></div></div>
+      <div class="card span-3"><div class="metric"><span>Closed</span><b id="plStat2">0</b><span>this cycle</span></div></div>
+      <div class="card span-3"><div class="metric"><span>Clients</span><b id="plStat3">0</b><span>on client board</span></div></div>
+    </div>
+    <div class="pl-search-bar">
+      <input id="plSearch" placeholder="Search by name, email, type…" style="flex:2;min-width:200px;margin:0" oninput="plRender()">
+      <select id="plFilterStage" style="flex:1;min-width:130px;margin:0" onchange="plRender()">
+        <option value="">All Stages</option>
+        <option>Discovered</option><option>Engaged</option><option>Pitched</option>
+        <option>Call Booked</option><option>Proposal Sent</option><option>Closed ✅</option><option>Dead ❌</option>
+      </select>
+      <select id="plFilterType" style="flex:1;min-width:120px;margin:0" onchange="plRender()">
+        <option value="">All Types</option>
+        <option>Medicare</option><option>Final Expense</option><option>Both</option><option>Meta Marketing</option>
+      </select>
+      <button class="btn secondary small" onclick="plClearFilters()">Clear</button>
+    </div>
+    <div class="card span-12" style="margin-bottom:18px">
+      <div class="section-title"><div><h3>Add New Lead</h3><p>Name is the minimum — edit everything else inside the card.</p></div></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+        <div style="flex:2;min-width:200px"><label style="margin:0 0 6px">Contact / Agency Name *</label><input id="plAddName" placeholder="Jane Smith — ABC Medicare Agency"></div>
+        <div style="flex:1;min-width:130px"><label style="margin:0 0 6px">Phone</label><input id="plAddPhone" placeholder="+1 555 000 0000"></div>
+        <div style="flex:1;min-width:150px"><label style="margin:0 0 6px">Email</label><input id="plAddEmail" placeholder="jane@agency.com"></div>
+        <div style="flex:1;min-width:120px"><label style="margin:0 0 6px">Source</label>
+          <select id="plAddSource" style="margin:0"><option>Database</option><option>LinkedIn</option><option>Facebook Group</option><option>Referral</option><option>Inbound</option><option>Other</option></select>
+        </div>
+        <div style="flex:1;min-width:120px"><label style="margin:0 0 6px">Type</label>
+          <select id="plAddType" style="margin:0"><option>Medicare</option><option>Final Expense</option><option>Both</option><option>Meta Marketing</option></select>
+        </div>
+        <button class="btn blush" onclick="plAdd()" style="align-self:flex-end">+ Add Lead</button>
+      </div>
+    </div>
+    <div class="card span-12" style="overflow:hidden">
+      <div class="pl-board" id="plBoard"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════ LEAD MODAL ══════════════════════════ -->
+  <div class="modal" id="plModal">
+    <div class="modal-box" style="max-width:700px;max-height:92vh;overflow-y:auto;padding:0">
+      <div style="position:sticky;top:0;background:#fff;z-index:5;padding:20px 22px 14px;border-bottom:1px solid var(--line);display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+        <div>
+          <div class="kicker" id="plModalSub">Lead Detail</div>
+          <h3 style="margin:4px 0 0;font-size:20px" id="plModalName">—</h3>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn gold small" id="plMoveClientBtn" onclick="plMoveToClients()" style="display:none">🌟 Move to Clients</button>
+          <button class="btn secondary small" onclick="plModalClose()">✕ Close</button>
+        </div>
+      </div>
+      <input type="hidden" id="plModalId">
+      <div style="padding:20px 22px">
+        <label>Stage</label>
+        <div id="plModalStages" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px"></div>
+        <div class="row3" style="margin-bottom:14px">
+          <div><label>Phone</label><input id="plMPhone" placeholder="+1 555 000 0000" style="margin:0"></div>
+          <div><label>Email</label><input id="plMEmail" placeholder="jane@agency.com" style="margin:0"></div>
+          <div><label>Website</label><input id="plMWeb" placeholder="agency.com" style="margin:0"></div>
+        </div>
+        <div class="row" style="margin-bottom:14px">
+          <div><label>LinkedIn / URL</label><input id="plMLinkedin" placeholder="linkedin.com/in/..." style="margin:0"></div>
+          <div><label>Agency Size</label>
+            <select id="plMSize" style="margin:0"><option>Solo Agent</option><option>Small (2–5)</option><option>Medium (6–20)</option><option>Large / FMO</option></select>
+          </div>
+        </div>
+
+        <!-- Transfer details — shown for Medicare/FEX/Both -->
+        <div id="plMTransferSection" style="display:none;background:linear-gradient(135deg,#f0fbff,#fff);border:1px solid rgba(34,211,238,.3);border-radius:18px;padding:14px;margin-bottom:14px">
+          <div style="font-weight:800;font-size:13px;margin-bottom:10px;color:#0e7490">📞 Live Transfer Details</div>
+          <div class="row">
+            <div><label>Agreed Price Per Transfer</label><input id="plMTransferPrice" placeholder="$65" style="margin:0"></div>
+            <div><label>Weekly Transfer Volume</label><input id="plMTransferVol" placeholder="e.g. 50/week" style="margin:0"></div>
+          </div>
+        </div>
+
+        <!-- Meta details — shown for Meta Marketing -->
+        <div id="plMMetaSection" style="display:none;background:linear-gradient(135deg,#fffdf5,#fff);border:1px solid rgba(185,138,50,.25);border-radius:18px;padding:14px;margin-bottom:14px">
+          <div style="font-weight:800;font-size:13px;margin-bottom:10px;color:var(--gold)">📣 Meta Marketing Details</div>
+          <label>What They Ordered / Customizations</label>
+          <textarea id="plMMetaDetails" style="min-height:80px;margin:0" placeholder="e.g. Medicare Advantage lead gen — $4,000 setup — $50/day ad spend — targeting TX/FL — HeyGen video ads..."></textarea>
+        </div>
+
+        <label>Notes</label>
+        <textarea id="plMNotes" style="min-height:72px;margin:0 0 14px" placeholder="What did they say? Objections? Next steps?"></textarea>
+
+        <label>Log a Contact Attempt</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+          <select id="plMCh" style="flex:1;min-width:130px;margin:0">
+            <option>Email</option><option>LinkedIn DM</option><option>Facebook DM</option>
+            <option>Phone Call</option><option>Text</option><option>Comment</option>
+          </select>
+          <input id="plMNote" placeholder="e.g. Sent intro email, no reply yet" style="flex:2;min-width:160px;margin:0">
+          <button class="btn blush small" onclick="plLogAttempt()" style="align-self:flex-end">Log</button>
+        </div>
+        <div id="plMLog" class="attempt-log" style="margin-bottom:16px"></div>
+
+        <div style="display:flex;gap:8px;padding-top:14px;border-top:1px solid var(--line)">
+          <button class="btn blush" onclick="plModalSave()" style="flex:2">Save Changes</button>
+          <button class="btn secondary" onclick="plModalDelete()" style="color:var(--danger)">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════ CLIENTS TAB ══════════════════════════ -->
+  <section id="clients" class="page">
+    <div class="hero" style="margin-bottom:18px">
+      <div class="kicker">Client Board</div>
+      <h2 style="font-size:28px">Clients 🌟</h2>
+      <p style="margin-bottom:0">Your paying clients. Track orders, transfers, payments, and nurture touches. Every client has a full history and a next check-in date.</p>
+    </div>
+
+    <!-- Client stats -->
+    <div class="grid" style="margin-bottom:18px">
+      <div class="card span-3"><div class="metric"><span>Total Clients</span><b id="clStat0">0</b><span>all time</span></div></div>
+      <div class="card span-3"><div class="metric"><span>Active Orders</span><b id="clStat1">0</b><span>currently running</span></div></div>
+      <div class="card span-3"><div class="metric"><span>Ready to Reorder</span><b id="clStat2">0</b><span>reach out now</span></div></div>
+      <div class="card span-3"><div class="metric"><span>Total LTV</span><b id="clStat3">$0</b><span>all paid orders</span></div></div>
+    </div>
+
+    <!-- Search/filter -->
+    <div class="pl-search-bar" style="margin-bottom:18px">
+      <input id="clSearch" placeholder="Search clients…" style="flex:2;min-width:200px;margin:0" oninput="clRender()">
+      <select id="clFilterType" style="flex:1;min-width:130px;margin:0" onchange="clRender()">
+        <option value="">All Types</option>
+        <option>Medicare</option><option>Final Expense</option><option>Both</option><option>Meta Marketing</option>
+      </select>
+      <select id="clFilterReorder" style="flex:1;min-width:160px;margin:0" onchange="clRender()">
+        <option value="">All Clients</option>
+        <option value="ready">Ready to Reorder</option>
+      </select>
+      <button class="btn secondary small" onclick="clClearFilters()">Clear</button>
+    </div>
+
+    <!-- Client grid -->
+    <div id="clGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px"></div>
+  </section>
+
+  <!-- CLIENT DETAIL MODAL -->
+  <div class="modal" id="clModal">
+    <div class="modal-box" style="max-width:740px;max-height:92vh;overflow-y:auto;padding:0">
+      <div style="position:sticky;top:0;background:#fff;z-index:5;padding:20px 22px 14px;border-bottom:1px solid var(--line);display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+        <div>
+          <div class="kicker" id="clModalSub">Client</div>
+          <h3 style="margin:4px 0 0;font-size:20px" id="clModalName">—</h3>
+        </div>
+        <button class="btn secondary small" onclick="clModalClose()">✕ Close</button>
+      </div>
+      <input type="hidden" id="clModalId">
+      <div style="padding:20px 22px">
+
+        <!-- Contact -->
+        <div class="row3" style="margin-bottom:14px">
+          <div><label>Phone</label><input id="clMPhone" style="margin:0"></div>
+          <div><label>Email</label><input id="clMEmail" style="margin:0"></div>
+          <div><label>Service Type</label>
+            <select id="clMType" style="margin:0" onchange="clToggleSections()">
+              <option>Medicare</option><option>Final Expense</option><option>Both</option><option>Meta Marketing</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Transfer agreement -->
+        <div id="clMTransferSection" style="background:linear-gradient(135deg,#f0fbff,#fff);border:1px solid rgba(34,211,238,.3);border-radius:18px;padding:14px;margin-bottom:14px">
+          <div style="font-weight:800;font-size:13px;margin-bottom:10px;color:#0e7490">📞 Transfer Agreement</div>
+          <div class="row3">
+            <div><label>Agreed Price / Transfer</label><input id="clMPrice" placeholder="$65" style="margin:0"></div>
+            <div><label>Weekly Volume</label><input id="clMVolume" placeholder="50/week" style="margin:0"></div>
+            <div><label>Billing Method</label>
+              <select id="clMBilling" style="margin:0"><option>Prepay</option><option>Weekly Invoice</option></select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Meta details -->
+        <div id="clMMetaSection" style="display:none;background:linear-gradient(135deg,#fffdf5,#fff);border:1px solid rgba(185,138,50,.25);border-radius:18px;padding:14px;margin-bottom:14px">
+          <div style="font-weight:800;font-size:13px;margin-bottom:10px;color:var(--gold)">📣 Meta Campaign Details</div>
+          <textarea id="clMMetaDetails" style="min-height:80px;margin:0" placeholder="Ad strategy, targeting, creative notes, customizations…"></textarea>
+        </div>
+
+        <!-- Order log -->
+        <div style="margin-bottom:14px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <label style="margin:0">Order History</label>
+            <span id="clMLTV" style="font-size:13px;font-weight:800;color:var(--gold)"></span>
+          </div>
+          <!-- Add order -->
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;padding:12px;background:var(--gray);border-radius:14px">
+            <input id="clOAmt" placeholder="Amount e.g. $3,250" style="flex:1;min-width:110px;margin:0;font-size:12px">
+            <input id="clODesc" placeholder="Description e.g. 50 Medicare transfers/week" style="flex:2;min-width:150px;margin:0;font-size:12px">
+            <select id="clOStatus" style="flex:1;min-width:100px;margin:0;font-size:12px"><option>Pending</option><option>Paid ✅</option><option>Overdue ⚠️</option></select>
+            <button class="btn blush small" onclick="clAddOrder()">+ Log Order</button>
+          </div>
+          <div id="clMOrders"></div>
+        </div>
+
+        <!-- Reorder tracking -->
+        <div style="background:linear-gradient(135deg,#fffdf5,#fff);border:1px solid rgba(185,138,50,.2);border-radius:18px;padding:14px;margin-bottom:14px">
+          <div style="font-weight:800;font-size:13px;margin-bottom:10px;color:var(--gold)">🔄 Reorder Tracking</div>
+          <div class="row">
+            <div><label>Next Check-in Date</label><input id="clMCheckIn" type="date" style="margin:0"></div>
+            <div><label>Reorder Status</label>
+              <select id="clMReorderSt" style="margin:0">
+                <option>Active Order Running</option><option>Ready to Reorder</option><option>Reorder Sent</option><option>Reordered ✅</option><option>Paused</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Nurture log -->
+        <div style="margin-bottom:14px">
+          <label>Client Nurture Log</label>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+            <select id="clMNurtureType" style="flex:1;min-width:160px;margin:0">
+              <option>💌 Holiday Email</option><option>🙏 Thank You Note</option>
+              <option>📰 Newsletter</option><option>📞 Check-in Call</option>
+              <option>🎯 Reorder Pitch</option><option>🎉 Milestone Note</option>
+              <option>📦 New Order Sent</option>
+            </select>
+            <input id="clMNurtureNote" placeholder="e.g. Sent Thanksgiving email" style="flex:2;min-width:150px;margin:0">
+            <button class="btn gold small" onclick="clLogNurture()">Log</button>
+          </div>
+          <div id="clMNurtureLog"></div>
+        </div>
+
+        <!-- Notes -->
+        <label>Notes</label>
+        <textarea id="clMNotes" style="min-height:72px;margin:0 0 16px" placeholder="Anything important about this client…"></textarea>
+
+        <div style="display:flex;gap:8px;padding-top:14px;border-top:1px solid var(--line)">
+          <button class="btn blush" onclick="clModalSave()" style="flex:2">Save Changes</button>
+          <button class="btn secondary" onclick="clModalDelete()" style="color:var(--danger)">Delete Client</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <p class="footer-note">The Lead Boss Marketing OS v4.0 • Supabase AI only • Shared memory ready</p>
 </main>
 
 <!-- Directory edit modal — OUTSIDE all page sections so it's always visible -->
@@ -1405,6 +1731,423 @@ function copyDayPost(btn){
 }
 
 
+
+// ══════════════════ DATABASE ══════════════════
+let _dbAll=[],_dbPage=0;const DB_SZ=60;
+async function loadDB(){
+  const list=document.getElementById('dbList');
+  const lbl=document.getElementById('dbCountLabel');
+  if(list) list.innerHTML='<div style="text-align:center;padding:40px;color:var(--muted)">Loading agencies…</div>';
+  try{
+    const base=getSupabaseRestBase();
+    const res=await fetch(base+'/rest/v1/agents_enriched?select=id,name,phone,email,website,address,source&limit=2000&order=id.desc',{headers:cloudHeaders()});
+    if(!res.ok) throw new Error('Supabase '+res.status);
+    _dbAll=await res.json();_dbPage=0;dbRender();
+    if(lbl) lbl.textContent=_dbAll.length.toLocaleString()+' agencies in database';
+  }catch(e){
+    if(list) list.innerHTML='<div style="padding:24px 16px;color:var(--danger);font-size:13px">'+escapeHtml(e.message)+'<br><span style="color:var(--muted)">Check Supabase credentials in Settings.</span></div>';
+  }
+}
+function dbFilter(){_dbPage=0;dbRender();}
+function dbRender(){
+  const q=(document.getElementById('dbSearch')?.value||'').toLowerCase();
+  const emailOnly=document.getElementById('dbEmailOnly')?.value==='1';
+  const lbl=document.getElementById('dbCountLabel');
+  let rows=_dbAll.filter(r=>{
+    const m=!q||(r.name||'').toLowerCase().includes(q)||(r.address||'').toLowerCase().includes(q)||(r.email||'').toLowerCase().includes(q);
+    return m&&(!emailOnly||r.email);
+  });
+  const total=rows.length;
+  const page=rows.slice(_dbPage*DB_SZ,(_dbPage+1)*DB_SZ);
+  if(lbl) lbl.textContent=total.toLocaleString()+' agencies'+(q||emailOnly?' (filtered)':'');
+  const list=document.getElementById('dbList');
+  if(!list) return;
+  if(!page.length){list.innerHTML='<div style="padding:24px 16px;text-align:center;color:var(--muted);font-size:13px">No results.</div>';dbRenderPages(total);return;}
+  list.innerHTML=page.map(r=>{
+    const site=r.website?(r.website.replace(/^https?:\/\//,'').split('/')[0].slice(0,26)):'';
+    return`<div class="db-row">
+      <div class="db-name" title="${escapeHtml(r.name||'')}">${escapeHtml(r.name||'—')}</div>
+      <div class="db-phone">${escapeHtml(r.phone||'—')}</div>
+      <div class="db-email">${r.email?escapeHtml(r.email):'<span style="color:var(--muted)">—</span>'}</div>
+      <div class="db-site">${r.website?'<a href="'+escapeHtml(r.website)+'" target="_blank" rel="noopener">'+escapeHtml(site)+'</a>':'<span style="color:var(--muted)">—</span>'}</div>
+      <div style="flex:0 0 88px"><button class="btn blush small" onclick="dbPush(${JSON.stringify(JSON.stringify(r))})">+ Pipeline</button></div>
+    </div>`;
+  }).join('');
+  dbRenderPages(total);
+}
+function dbRenderPages(total){
+  const pages=Math.ceil(total/DB_SZ);
+  const el=document.getElementById('dbPages');
+  if(!el) return;
+  if(pages<=1){el.innerHTML='';return;}
+  el.innerHTML=Array.from({length:pages},(_,i)=>`<button class="btn ${i===_dbPage?'blush':'secondary'} small" onclick="dbGo(${i})">${i+1}</button>`).join('');
+}
+function dbGo(p){_dbPage=p;dbRender();}
+function dbPush(json){
+  const r=JSON.parse(json);
+  document.getElementById('plAddName').value=r.name||'';
+  document.getElementById('plAddPhone').value=r.phone||'';
+  document.getElementById('plAddEmail').value=r.email||'';
+  document.getElementById('plAddSource').value='Database';
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const t=[...document.querySelectorAll('.tab-btn')].find(b=>b.dataset.page==='pipeline');
+  if(t)t.classList.add('active');
+  document.getElementById('pipeline').classList.add('active');
+  const n=document.getElementById('plAddName');
+  if(n){n.focus();n.style.boxShadow='0 0 0 4px rgba(198,95,126,.22)';setTimeout(()=>n.style.boxShadow='',1800);}
+  document.getElementById('pipeline').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ══════════════════ PIPELINE ══════════════════
+const PL_STAGES=['Discovered','Engaged','Pitched','Call Booked','Proposal Sent','Closed ✅','Dead ❌'];
+const PL_COL={'Discovered':'#6366f1','Engaged':'#f59e0b','Pitched':'#a78bfa','Call Booked':'#22d3ee','Proposal Sent':'#fb923c','Closed ✅':'#5f9f78','Dead ❌':'#bf5c66'};
+
+function plLeads(){return data.pipelineLeads||[];}
+function plSet(arr){data.pipelineLeads=arr;save();}
+function plClients(){return data.clients||[];}
+function plSetClients(arr){data.clients=arr;save();}
+
+function plClearFilters(){
+  ['plSearch','plFilterStage','plFilterType'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  plRender();
+}
+
+function plAdd(){
+  const name=(document.getElementById('plAddName')?.value||'').trim();
+  if(!name){const n=document.getElementById('plAddName');if(n){n.focus();n.style.borderColor='var(--danger)';setTimeout(()=>n.style.borderColor='',1800);}return;}
+  const lead={id:Date.now()+'',name,
+    phone:(document.getElementById('plAddPhone')?.value||'').trim(),
+    email:(document.getElementById('plAddEmail')?.value||'').trim(),
+    website:'',linkedin:'',size:'Medium (6–20)',
+    source:document.getElementById('plAddSource')?.value||'Other',
+    type:document.getElementById('plAddType')?.value||'Medicare',
+    stage:'Discovered',notes:'',
+    transferPrice:'',transferVolume:'',metaDetails:'',
+    attempts:[],createdAt:new Date().toLocaleDateString()};
+  const arr=plLeads();arr.unshift(lead);plSet(arr);
+  ['plAddName','plAddPhone','plAddEmail'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  plRender();
+}
+
+function plGetFiltered(){
+  const leads=plLeads();
+  const q=(document.getElementById('plSearch')?.value||'').toLowerCase();
+  const stage=document.getElementById('plFilterStage')?.value||'';
+  const type=document.getElementById('plFilterType')?.value||'';
+  return leads.filter(l=>{
+    if(q&&!(l.name||'').toLowerCase().includes(q)&&!(l.email||'').toLowerCase().includes(q)) return false;
+    if(stage&&l.stage!==stage) return false;
+    if(type&&l.type!==type) return false;
+    return true;
+  });
+}
+
+function plRender(){
+  const leads=plLeads();const filtered=plGetFiltered();
+  const board=document.getElementById('plBoard');if(!board)return;
+  const active=leads.filter(l=>!['Closed ✅','Dead ❌'].includes(l.stage)).length;
+  const closed=leads.filter(l=>l.stage==='Closed ✅').length;
+  const el=id=>document.getElementById(id);
+  if(el('plStat0'))el('plStat0').textContent=leads.length;
+  if(el('plStat1'))el('plStat1').textContent=active;
+  if(el('plStat2'))el('plStat2').textContent=closed;
+  if(el('plStat3'))el('plStat3').textContent=plClients().length;
+  const isFiltered=filtered.length!==leads.length;
+  board.innerHTML=PL_STAGES.map(stage=>{
+    const col=filtered.filter(l=>l.stage===stage);
+    const c=PL_COL[stage];
+    const cards=col.map(l=>`
+      <div class="pl-card" onclick="plOpen('${l.id}')">
+        <h5>${escapeHtml(l.name)}</h5>
+        <p class="pl-sub">${escapeHtml(l.source)} · ${l.createdAt}</p>
+        <div class="pl-tags">
+          <span class="pl-tag" style="background:${c}18;color:${c}">${escapeHtml(l.type)}</span>
+          ${l.transferVolume?`<span class="pl-tag" style="background:rgba(34,211,238,.1);color:#0e7490">${escapeHtml(l.transferVolume)}</span>`:''}
+          ${l.attempts&&l.attempts.length?`<span class="pl-tag" style="background:var(--blush);color:var(--rose-dark)">${l.attempts.length} contact${l.attempts.length>1?'s':''}</span>`:''}
+        </div>
+      </div>`).join('');
+    return`<div class="pl-col">
+      <div class="pl-col-hd"><span class="pl-col-label" style="color:${c}">${stage}</span><span class="pl-col-count">${col.length}${isFiltered?'*':''}</span></div>
+      ${cards||'<div class="pl-empty">Empty</div>'}
+    </div>`;
+  }).join('');
+}
+
+function plToggleSections(type){
+  const isMeta=(type||'').includes('Meta');
+  const isTransfer=!isMeta;
+  const ts=document.getElementById('plMTransferSection');
+  const ms=document.getElementById('plMMetaSection');
+  if(ts)ts.style.display=isTransfer?'block':'none';
+  if(ms)ms.style.display=isMeta?'block':'none';
+}
+
+function plOpen(id){
+  const l=plLeads().find(x=>x.id===id);if(!l)return;
+  const el=i=>document.getElementById(i);
+  el('plModalId').value=id;
+  el('plModalName').textContent=l.name;
+  el('plModalSub').textContent=l.source+' · '+l.createdAt;
+  el('plMPhone').value=l.phone||'';el('plMEmail').value=l.email||'';
+  el('plMWeb').value=l.website||'';el('plMLinkedin').value=l.linkedin||'';
+  el('plMSize').value=l.size||'Medium (6–20)';
+  el('plMTransferPrice').value=l.transferPrice||'';
+  el('plMTransferVol').value=l.transferVolume||'';
+  el('plMMetaDetails').value=l.metaDetails||'';
+  el('plMNotes').value=l.notes||'';
+  plToggleSections(l.type);
+  // Show Move to Clients button only when Closed
+  const moveBtn=el('plMoveClientBtn');
+  if(moveBtn)moveBtn.style.display=l.stage==='Closed ✅'?'inline-flex':'none';
+  // Stage pills
+  el('plModalStages').innerHTML=PL_STAGES.map(s=>{
+    const c=PL_COL[s];const a=l.stage===s;
+    return`<button onclick="plSetStage('${s}')" style="padding:7px 13px;border-radius:999px;font-size:12px;font-weight:800;cursor:pointer;border:1.5px solid ${a?c:'var(--line)'};background:${a?c+'22':'#fff'};color:${a?c:'var(--muted)'};">${s}</button>`;
+  }).join('');
+  plRenderLog(l.attempts||[]);
+  el('plModal').classList.add('show');
+}
+
+function plSetStage(s){
+  const id=document.getElementById('plModalId').value;
+  const arr=plLeads();const l=arr.find(x=>x.id===id);if(!l)return;
+  l.stage=s;plSet(arr);plOpen(id);plRender();
+}
+
+function plRenderLog(attempts){
+  const el=document.getElementById('plMLog');if(!el)return;
+  if(!attempts.length){el.innerHTML='<div style="font-size:12px;color:var(--muted);font-style:italic;padding:6px 0">No contact attempts logged yet.</div>';return;}
+  el.innerHTML=[...attempts].reverse().map(a=>`<div class="attempt-row">
+    <span class="attempt-ch">${escapeHtml(a.channel)}</span>
+    <span style="flex:1;color:var(--ink)">${escapeHtml(a.note)}</span>
+    <span class="attempt-dt">${a.date}</span>
+  </div>`).join('');
+}
+
+function plLogAttempt(){
+  const id=document.getElementById('plModalId').value;
+  const ch=document.getElementById('plMCh')?.value||'Email';
+  const note=(document.getElementById('plMNote')?.value||'').trim();if(!note)return;
+  const arr=plLeads();const l=arr.find(x=>x.id===id);if(!l)return;
+  l.attempts=l.attempts||[];l.attempts.push({channel:ch,note,date:new Date().toLocaleDateString()});
+  plSet(arr);document.getElementById('plMNote').value='';plRenderLog(l.attempts);plRender();
+}
+
+function plMoveToClients(){
+  const id=document.getElementById('plModalId').value;
+  const arr=plLeads();const l=arr.find(x=>x.id===id);if(!l)return;
+  // Create client record from lead
+  const client={
+    id:'cl_'+Date.now(),name:l.name,phone:l.phone||'',email:l.email||'',
+    type:l.type||'Medicare',size:l.size||'',website:l.website||'',
+    transferPrice:l.transferPrice||'',transferVolume:l.transferVolume||'',
+    metaDetails:l.metaDetails||'',billing:'Prepay',
+    orders:[],nurtureLog:[],notes:l.notes||'',
+    checkInDate:'',reorderStatus:'Active Order Running',
+    createdAt:new Date().toLocaleDateString()
+  };
+  const clients=plClients();clients.unshift(client);plSetClients(clients);
+  // Remove from pipeline
+  plSet(arr.filter(x=>x.id!==id));
+  plRender();clRender();plModalClose();
+  // Switch to clients tab
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const t=[...document.querySelectorAll('.tab-btn')].find(b=>b.dataset.page==='clients');
+  if(t)t.classList.add('active');
+  const pg=document.getElementById('clients');if(pg)pg.classList.add('active');
+}
+
+function plModalSave(){
+  const id=document.getElementById('plModalId').value;
+  const arr=plLeads();const l=arr.find(x=>x.id===id);if(!l)return;
+  l.phone=document.getElementById('plMPhone').value.trim();
+  l.email=document.getElementById('plMEmail').value.trim();
+  l.website=document.getElementById('plMWeb').value.trim();
+  l.linkedin=document.getElementById('plMLinkedin').value.trim();
+  l.size=document.getElementById('plMSize').value;
+  l.transferPrice=document.getElementById('plMTransferPrice').value.trim();
+  l.transferVolume=document.getElementById('plMTransferVol').value.trim();
+  l.metaDetails=document.getElementById('plMMetaDetails').value.trim();
+  l.notes=document.getElementById('plMNotes').value.trim();
+  plSet(arr);plRender();plModalClose();
+}
+function plModalDelete(){
+  const id=document.getElementById('plModalId').value;
+  if(!confirm('Delete this lead?'))return;
+  plSet(plLeads().filter(l=>l.id!==id));plRender();plModalClose();
+}
+function plModalClose(){document.getElementById('plModal').classList.remove('show');}
+
+// ══════════════════ CLIENTS ══════════════════
+function clClearFilters(){
+  ['clSearch','clFilterType','clFilterReorder'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  clRender();
+}
+
+function clRender(){
+  const clients=plClients();
+  const q=(document.getElementById('clSearch')?.value||'').toLowerCase();
+  const type=document.getElementById('clFilterType')?.value||'';
+  const reorder=document.getElementById('clFilterReorder')?.value||'';
+  let filtered=clients.filter(c=>{
+    if(q&&!(c.name||'').toLowerCase().includes(q)&&!(c.email||'').toLowerCase().includes(q))return false;
+    if(type&&c.type!==type)return false;
+    if(reorder==='ready'&&c.reorderStatus!=='Ready to Reorder')return false;
+    return true;
+  });
+  // Stats
+  const ltv=clients.reduce((s,c)=>{
+    return s+(c.orders||[]).filter(o=>o.status==='Paid ✅').reduce((os,o)=>os+parseFloat((o.amount||'').replace(/[^0-9.]/g,'')||0),0);
+  },0);
+  const active=clients.filter(c=>c.reorderStatus==='Active Order Running').length;
+  const ready=clients.filter(c=>c.reorderStatus==='Ready to Reorder').length;
+  const el=id=>document.getElementById(id);
+  if(el('clStat0'))el('clStat0').textContent=clients.length;
+  if(el('clStat1'))el('clStat1').textContent=active;
+  if(el('clStat2'))el('clStat2').textContent=ready;
+  if(el('clStat3'))el('clStat3').textContent='$'+ltv.toLocaleString();
+  const grid=el('clGrid');if(!grid)return;
+  if(!filtered.length){
+    grid.innerHTML='<div class="empty" style="grid-column:span 3">No clients yet. Close a deal in the Pipeline and hit "Move to Clients".</div>';return;
+  }
+  const typeClass={Medicare:'medicare','Final Expense':'fex',Both:'fex','Meta Marketing':'meta'};
+  grid.innerHTML=filtered.map(c=>{
+    const ltv=(c.orders||[]).filter(o=>o.status==='Paid ✅').reduce((s,o)=>s+parseFloat((o.amount||'').replace(/[^0-9.]/g,'')||0),0);
+    const lastOrder=(c.orders||[]).slice(-1)[0];
+    const reorderReady=c.reorderStatus==='Ready to Reorder';
+    return`<div class="cl-card ${typeClass[c.type]||''}" onclick="clOpen('${c.id}')">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px">
+        <div>
+          <div style="font-weight:800;font-size:14px;color:var(--ink)">${escapeHtml(c.name)}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">${escapeHtml(c.email||c.phone||'—')}</div>
+        </div>
+        <span class="pl-tag" style="background:${reorderReady?'rgba(185,138,50,.15)':'var(--blush)'};color:${reorderReady?'var(--gold)':'var(--rose-dark)'};flex-shrink:0">
+          ${reorderReady?'🎯 Reorder':escapeHtml(c.reorderStatus||'Active')}
+        </span>
+      </div>
+      <div style="font-size:12px;color:var(--ink);margin-bottom:8px">
+        ${c.transferPrice?`<span style="font-weight:700">${escapeHtml(c.transferPrice)}/transfer</span> · `:''}
+        ${c.transferVolume?escapeHtml(c.transferVolume):''}
+        ${c.type?`<span class="pl-tag" style="background:var(--blush);color:var(--rose-dark);margin-left:4px">${escapeHtml(c.type)}</span>`:''}
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;padding-top:8px;border-top:1px solid var(--line)">
+        <span style="color:var(--muted)">${(c.orders||[]).length} order${(c.orders||[]).length!==1?'s':''}</span>
+        <span style="font-weight:800;color:var(--gold)">LTV $${ltv.toLocaleString()}</span>
+        ${c.checkInDate?`<span style="color:var(--rose-dark);font-weight:700">↻ ${c.checkInDate}</span>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function clOpen(id){
+  const c=plClients().find(x=>x.id===id);if(!c)return;
+  const el=i=>document.getElementById(i);
+  el('clModalId').value=id;
+  el('clModalName').textContent=c.name;
+  el('clModalSub').textContent=(c.type||'Client')+' · Since '+c.createdAt;
+  el('clMPhone').value=c.phone||'';el('clMEmail').value=c.email||'';
+  el('clMType').value=c.type||'Medicare';
+  el('clMPrice').value=c.transferPrice||'';el('clMVolume').value=c.transferVolume||'';
+  el('clMBilling').value=c.billing||'Prepay';
+  el('clMMetaDetails').value=c.metaDetails||'';
+  el('clMCheckIn').value=c.checkInDate||'';
+  el('clMReorderSt').value=c.reorderStatus||'Active Order Running';
+  el('clMNotes').value=c.notes||'';
+  clToggleSections(c.type);
+  clRenderOrders(c.orders||[]);
+  clRenderNurture(c.nurtureLog||[]);
+  el('clModal').classList.add('show');
+}
+
+function clToggleSections(type){
+  const t=type||(document.getElementById('clMType')?.value||'');
+  const isMeta=t.includes('Meta');
+  const ts=document.getElementById('clMTransferSection');
+  const ms=document.getElementById('clMMetaSection');
+  if(ts)ts.style.display=isMeta?'none':'block';
+  if(ms)ms.style.display=isMeta?'block':'none';
+}
+
+function clRenderOrders(orders){
+  const el=document.getElementById('clMOrders');if(!el)return;
+  const ltv=orders.filter(o=>o.status==='Paid ✅').reduce((s,o)=>s+parseFloat((o.amount||'').replace(/[^0-9.]/g,'')||0),0);
+  const ltvEl=document.getElementById('clMLTV');
+  if(ltvEl)ltvEl.textContent='Paid LTV: $'+ltv.toLocaleString();
+  if(!orders.length){el.innerHTML='<div style="font-size:12px;color:var(--muted);font-style:italic;padding:4px 0">No orders logged yet.</div>';return;}
+  el.innerHTML=[...orders].reverse().map((o,i)=>`<div class="order-row">
+    <span style="font-weight:700;flex:2">${escapeHtml(o.desc||'Order')}</span>
+    <span style="color:var(--gold);font-weight:800">${escapeHtml(o.amount||'')}</span>
+    <span class="pl-tag" style="background:${o.status==='Paid ✅'?'rgba(95,159,120,.15)':o.status==='Overdue ⚠️'?'rgba(191,92,102,.1)':'var(--blush)'};color:${o.status==='Paid ✅'?'var(--success)':o.status==='Overdue ⚠️'?'var(--danger)':'var(--rose-dark)'}">${escapeHtml(o.status||'Pending')}</span>
+    <span style="color:var(--muted);font-size:11px">${o.date}</span>
+    <button class="btn secondary small" onclick="clDeleteOrder(${orders.length-1-i})" style="padding:3px 8px;font-size:11px">✕</button>
+  </div>`).join('');
+}
+
+function clAddOrder(){
+  const id=document.getElementById('clModalId').value;
+  const amt=(document.getElementById('clOAmt')?.value||'').trim();
+  const desc=(document.getElementById('clODesc')?.value||'').trim();
+  const status=document.getElementById('clOStatus')?.value||'Pending';
+  if(!amt&&!desc)return;
+  const arr=plClients();const c=arr.find(x=>x.id===id);if(!c)return;
+  c.orders=c.orders||[];c.orders.push({amount:amt,desc,status,date:new Date().toLocaleDateString()});
+  plSetClients(arr);
+  ['clOAmt','clODesc'].forEach(i=>{const el=document.getElementById(i);if(el)el.value='';});
+  clRenderOrders(c.orders);clRender();
+}
+
+function clDeleteOrder(idx){
+  const id=document.getElementById('clModalId').value;
+  const arr=plClients();const c=arr.find(x=>x.id===id);if(!c)return;
+  const rev=[...c.orders].reverse();rev.splice(idx,1);c.orders=rev.reverse();
+  plSetClients(arr);clRenderOrders(c.orders);clRender();
+}
+
+function clRenderNurture(log){
+  const el=document.getElementById('clMNurtureLog');if(!el)return;
+  if(!log.length){el.innerHTML='<div style="font-size:12px;color:var(--muted);font-style:italic;padding:4px 0">No nurture touches logged yet.</div>';return;}
+  el.innerHTML=[...log].reverse().map(n=>`<div class="nurture-row">
+    <span style="font-size:14px">${n.type.split(' ')[0]}</span>
+    <span style="flex:1;color:var(--ink);font-size:12px">${escapeHtml(n.type.split(' ').slice(1).join(' '))} — ${escapeHtml(n.note)}</span>
+    <span style="color:var(--muted);font-size:10px;white-space:nowrap">${n.date}</span>
+  </div>`).join('');
+}
+
+function clLogNurture(){
+  const id=document.getElementById('clModalId').value;
+  const type=document.getElementById('clMNurtureType')?.value||'📰 Newsletter';
+  const note=(document.getElementById('clMNurtureNote')?.value||'').trim();if(!note)return;
+  const arr=plClients();const c=arr.find(x=>x.id===id);if(!c)return;
+  c.nurtureLog=c.nurtureLog||[];c.nurtureLog.push({type,note,date:new Date().toLocaleDateString()});
+  plSetClients(arr);document.getElementById('clMNurtureNote').value='';
+  clRenderNurture(c.nurtureLog);clRender();
+}
+
+function clModalSave(){
+  const id=document.getElementById('clModalId').value;
+  const arr=plClients();const c=arr.find(x=>x.id===id);if(!c)return;
+  c.phone=document.getElementById('clMPhone').value.trim();
+  c.email=document.getElementById('clMEmail').value.trim();
+  c.type=document.getElementById('clMType').value;
+  c.transferPrice=document.getElementById('clMPrice').value.trim();
+  c.transferVolume=document.getElementById('clMVolume').value.trim();
+  c.billing=document.getElementById('clMBilling').value;
+  c.metaDetails=document.getElementById('clMMetaDetails').value.trim();
+  c.checkInDate=document.getElementById('clMCheckIn').value;
+  c.reorderStatus=document.getElementById('clMReorderSt').value;
+  c.notes=document.getElementById('clMNotes').value.trim();
+  plSetClients(arr);clRender();clModalClose();
+}
+function clModalDelete(){
+  const id=document.getElementById('clModalId').value;
+  if(!confirm('Remove this client?'))return;
+  plSetClients(plClients().filter(c=>c.id!==id));clRender();clModalClose();
+}
+function clModalClose(){document.getElementById('clModal').classList.remove('show');}
+
+
 function boot(){renderMission();renderFocusTasks();
   // Auto-load from Supabase silently on every page load if credentials are set
   const s=data.settings||{};
@@ -1413,7 +2156,7 @@ function boot(){renderMission();renderFocusTasks();
     if(el) el.textContent='Syncing...';
     loadCloudData(true).catch(()=>{});
   }checkBrandWarning();updateBrandBrainStatus();refreshMetrics();fillBrand();seedDirectory();renderDirectory();renderChannelButtons();renderResearch();renderStories();renderAssets();initCalendar();}
-boot();
+boot();plRender();clRender();
 </script>
 </body>
 </html>
