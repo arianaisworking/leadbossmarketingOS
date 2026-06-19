@@ -169,37 +169,50 @@ button,input,textarea,select{font:inherit}a,button,.tab-btn,.btn,.asset-card-hea
             <h2 style="margin:4px 0 2px;font-size:22px" id="dashGreeting">Good morning, Ariana</h2>
             <p style="margin:0;color:var(--muted);font-size:13px" id="dashDate"></p>
           </div>
-          <div style="font-size:13px;color:var(--muted);text-align:right;line-height:1.8" id="dashSummary">Loading...</div>
+          <div style="font-size:13px;color:var(--muted);text-align:right;line-height:1.8" id="dashSummary">Syncing...</div>
         </div>
       </div>
 
-      <!-- KPI Cards -->
-      <div class="card span-3">
-        <div class="metric">
-          <span>Database Agents</span>
-          <b id="kpiDatabase">&#8212;</b>
-          <span>scraped + imported</span>
-        </div>
-      </div>
-      <div class="card span-3">
-        <div class="metric">
-          <span>Pipeline Leads</span>
-          <b id="kpiTotalLeads">0</b>
-          <span><span id="kpiActive">0</span> active &middot; <span id="kpiBooked">0</span> booked</span>
-        </div>
-      </div>
-      <div class="card span-3">
-        <div class="metric">
-          <span>Active Clients</span>
-          <b id="kpiClients">0</b>
-          <span><span id="kpiOnboarding">0</span> onboarding</span>
-        </div>
-      </div>
-      <div class="card span-3">
-        <div class="metric">
-          <span>Meetings Booked</span>
-          <b id="kpiMeetings">0</b>
-          <span>calls scheduled</span>
+      <!-- KPI Quadrant (2x2) -->
+      <div class="span-12">
+        <div style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:14px">
+
+          <div class="card" style="display:flex;align-items:center;gap:18px;padding:20px 24px">
+            <div style="font-size:32px">&#128269;</div>
+            <div>
+              <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Database Agents</div>
+              <div style="font-size:36px;font-weight:900;color:var(--ink);line-height:1;font-family:Georgia,serif" id="kpiDatabase">&#8212;</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:3px">scraped + imported</div>
+            </div>
+          </div>
+
+          <div class="card" style="display:flex;align-items:center;gap:18px;padding:20px 24px">
+            <div style="font-size:32px">&#128202;</div>
+            <div>
+              <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Pipeline Leads</div>
+              <div style="font-size:36px;font-weight:900;color:var(--ink);line-height:1;font-family:Georgia,serif" id="kpiTotalLeads">0</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:3px"><span id="kpiActive">0</span> active &nbsp;&middot;&nbsp; <span id="kpiBooked">0</span> call booked</div>
+            </div>
+          </div>
+
+          <div class="card" style="display:flex;align-items:center;gap:18px;padding:20px 24px">
+            <div style="font-size:32px">&#11088;</div>
+            <div>
+              <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Active Clients</div>
+              <div style="font-size:36px;font-weight:900;color:var(--ink);line-height:1;font-family:Georgia,serif" id="kpiClients">0</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:3px"><span id="kpiOnboarding">0</span> onboarding</div>
+            </div>
+          </div>
+
+          <div class="card" style="display:flex;align-items:center;gap:18px;padding:20px 24px">
+            <div style="font-size:32px">&#128197;</div>
+            <div>
+              <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Meetings Booked</div>
+              <div style="font-size:36px;font-weight:900;color:var(--ink);line-height:1;font-family:Georgia,serif" id="kpiMeetings">0</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:3px">calls scheduled</div>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -551,29 +564,18 @@ button,input,textarea,select{font:inherit}a,button,.tab-btn,.btn,.asset-card-hea
     </div>
     <div class="grid">
       <div class="card span-12">
-        <div style="margin-bottom:14px">
-          <div class="accordion-hd" id="dbToolsHd" onclick="toggleAccordion('dbToolsHd','dbToolsBody')">
-            <div style="display:flex;align-items:center;gap:10px">
-              <span style="font-size:12px;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">Database Tools</span>
-              <span style="font-size:12px;color:var(--muted)" id="dbCountLabel">Click Refresh to load.</span>
-            </div>
-            <span class="accordion-chevron">&#9660;</span>
-          </div>
-          <div class="accordion-body closed" id="dbToolsBody" style="max-height:0">
-          <div style="padding-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-            <input id="dbSearch" placeholder="Search name, email, state..." style="width:200px;margin:0" oninput="dbFilter()">
-            <select id="dbEmailOnly" style="width:150px;margin:0" onchange="dbFilter()">
-              <option value="">All records</option>
-              <option value="1">Email only</option>
-              <option value="csv">CSV imports</option>
-            </select>
-            <button class="btn blush small" onclick="loadDB()">Refresh</button>
-            <label class="btn gold small" style="cursor:pointer;margin:0">Import CSV
-              <input type="file" id="dbCsvInput" accept=".csv" style="display:none" onchange="dbImportCSV(event)">
-            </label>
-            <button class="btn secondary small" onclick="dbExportCSV()">Export CSV</button>
-          </div>
-          </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+          <input id="dbSearch" placeholder="Search name, email, state..." style="width:200px;margin:0" oninput="dbFilter()">
+          <select id="dbEmailOnly" style="width:140px;margin:0" onchange="dbFilter()">
+            <option value="">All records</option>
+            <option value="1">Email only</option>
+            <option value="csv">CSV imports</option>
+          </select>
+          <label class="btn gold small" style="cursor:pointer;margin:0">&#128229; Import CSV
+            <input type="file" id="dbCsvInput" accept=".csv" style="display:none" onchange="dbImportCSV(event)">
+          </label>
+          <button class="btn secondary small" onclick="dbExportCSV()">&#128228; Export</button>
+          <div style="margin-left:auto;font-size:12px;color:var(--muted)" id="dbCountLabel">Loading...</div>
         </div>
         <div style="border:1px solid var(--line);border-radius:18px;overflow:hidden;margin-top:4px">
           <div class="db-head">
@@ -1100,7 +1102,7 @@ button,input,textarea,select{font:inherit}a,button,.tab-btn,.btn,.asset-card-hea
 
 <script>
 const LS='tlb_marketing_os_v2';
-const defaultData={calendar:[],research:[],packs:[],stories:[],directory:[],mission:{},settings:{supabaseUrl:'https://zjabbqdbguufkndqwjru.supabase.co',supabaseAnonKey:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqYWJicWRiZ3V1ZmtuZHF3anJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0OTA1NDgsImV4cCI6MjA5NjA2NjU0OH0.yexouM-hc1ZamPsl0fTBbXUhjFGB79n54kJMTck1QrE',functionName:'generate-content',cloudSync:true,workerUrl:'https://leadbossai.arianaisworking.workers.dev'},focusTasks:[{text:'1 hour comment marketing: Facebook, LinkedIn, Reddit',done:false},{text:'Keep content focused on agency owners, not consumers',done:false},{text:'Save strong questions/objections into Story Bank',done:false}],brand:{company:'The Lead Boss',email:'ariana@theleadboss.com',core:'Your agents sell. We deliver opportunities.',offer:'Premium Medicare live transfers, lead generation support, agency growth consulting, pilot programs, and scalable daily volume for agencies that need consistent conversations.',icp:'Medicare agencies, FMOs, IMOs, insurance organizations, and call centers with multiple licensed agents, active lead budgets, and capacity for 50–120+ live transfers per day.',tone:'Bright, premium, confident, helpful, agency-focused, compliant, clear, growth-minded, not spammy, not desperate.',avoid:'Avoid: cheap leads, guaranteed sales, unrealistic claims, aggressive compliance claims, spam language, copying competitor wording, pretending to be a customer if that is not true. For Reddit/Facebook, be transparent and useful; mention The Lead Boss softly only where natural.'}};
+const defaultData={calendar:[],research:[],packs:[],stories:[],directory:[],mission:{},pipelineLeads:[],pipelineClients:[],efProspects:[],dbAgents:[],settings:{supabaseUrl:'https://zjabbqdbguufkndqwjru.supabase.co',supabaseAnonKey:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqYWJicWRiZ3V1ZmtuZHF3anJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0OTA1NDgsImV4cCI6MjA5NjA2NjU0OH0.yexouM-hc1ZamPsl0fTBbXUhjFGB79n54kJMTck1QrE',functionName:'generate-content',cloudSync:true,workerUrl:'https://leadbossai.arianaisworking.workers.dev'},focusTasks:[{text:'1 hour comment marketing: Facebook, LinkedIn, Reddit',done:false},{text:'Keep content focused on agency owners, not consumers',done:false},{text:'Save strong questions/objections into Story Bank',done:false}],brand:{company:'The Lead Boss',email:'ariana@theleadboss.com',core:'Your agents sell. We deliver opportunities.',offer:'Premium Medicare live transfers, lead generation support, agency growth consulting, pilot programs, and scalable daily volume for agencies that need consistent conversations.',icp:'Medicare agencies, FMOs, IMOs, insurance organizations, and call centers with multiple licensed agents, active lead budgets, and capacity for 50–120+ live transfers per day.',tone:'Bright, premium, confident, helpful, agency-focused, compliant, clear, growth-minded, not spammy, not desperate.',avoid:'Avoid: cheap leads, guaranteed sales, unrealistic claims, aggressive compliance claims, spam language, copying competitor wording, pretending to be a customer if that is not true. For Reddit/Facebook, be transparent and useful; mention The Lead Boss softly only where natural.'}};
 let data=load();let calendar;
 let uploadCache={source:[],story:[],comment:[]};
 function load(){try{return {...defaultData,...JSON.parse(localStorage.getItem(LS)||'{}')}}catch(e){return defaultData}}
@@ -1440,9 +1442,10 @@ async function loadCloudData(silent=false){
     data={...defaultData,...data,...incomingClean,settings:mergedSettings};
     localStorage.setItem(LS,JSON.stringify(data));
     renderAll();
-    try{dbLoadLocalCSV();dbRender();}catch(e){}
+    try{ dbRender();}catch(e){}
     try{efLoadSettings();}catch(e){}
     try{efRender();}catch(e){}
+    try{refreshMetrics();}catch(e){}
     const ts=rows[0].updated_at ? new Date(rows[0].updated_at).toLocaleString() : 'unknown';
     if(el) el.textContent='✓ Synced — last update: '+ts;
     if(!silent) showModal('Shared memory loaded. Last update: '+ts);
@@ -1454,6 +1457,13 @@ async function loadCloudData(silent=false){
 }
 function renderAll(){
   renderMission();renderFocusTasks();checkBrandWarning();updateBrandBrainStatus();refreshMetrics();fillBrand();renderDirectory();renderChannelButtons();renderResearch();renderStories();renderAssets();refreshCalendar();
+  try{plRender();plRepopulateFilters();}catch(e){}
+  try{clRender();clRepopulateFilters();}catch(e){}
+  // Refresh DB from cached cloud data if available and current _dbAll is empty
+  try{
+    if(data.dbAgents&&data.dbAgents.length&&!_dbAll.length){
+    }
+  }catch(e){}
 }
 
 async function generatePack(mode){
@@ -2031,7 +2041,7 @@ async function loadDB(){
     const base=getSupabaseRestBase();
     const res=await fetch(base+'/rest/v1/agents_enriched?select=id,name,phone,email,website,address,source&limit=2000&order=id.desc',{headers:cloudHeaders()});
     if(!res.ok) throw new Error('Supabase '+res.status);
-    _dbAll=await res.json();dbLoadLocalCSV();_dbPage=0;dbRender();
+    _dbAll=await res.json(); _dbPage=0;dbRender();
     if(lbl) lbl.textContent=_dbAll.length.toLocaleString()+' records in database';
   }catch(e){
     if(list) list.innerHTML='<div style="padding:24px 16px;color:var(--danger);font-size:13px">'+escapeHtml(e.message)+'<br><span style="color:var(--muted)">Check Supabase credentials in Settings.</span></div>';
@@ -2056,7 +2066,9 @@ function dbRender(){
     var dname=escapeHtml(r.name||((r.first_name||'')+' '+(r.last_name||'')).trim()||'—');
     var state=escapeHtml(r.state||(r.address||'').split(',').slice(-2,-1)[0]||'—');
     var title=escapeHtml(r.title||'—');
-    var badge=r._csv?'<span style="font-size:9px;background:#fff7e6;color:var(--champagne);border:1px solid var(--champagne);border-radius:5px;padding:1px 5px;font-weight:800;margin-left:4px">CSV</span>':'';
+    var importedLabel=r.imported_at?new Date(r.imported_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'';
+    var isCSV=r.source==='CSV Import';
+    var badge=isCSV&&importedLabel?'<span style="font-size:9px;background:#fff7e6;color:var(--champagne);border:1px solid var(--champagne);border-radius:5px;padding:1px 5px;font-weight:800;margin-left:4px">CSV '+importedLabel+'</span>':'';
     var rj=JSON.stringify(JSON.stringify(r));
     return '<div class="db-row">'
       +'<div class="db-name" style="flex:2" title="'+dname+'">'+dname+badge+'</div>'
@@ -2107,14 +2119,12 @@ function dbSaveEdit(){
     notes:g('dbENotes').value.trim(),service:g('dbEService')?.value||'',source:g('dbESource')?.value||''};
   var idx=_dbAll.findIndex(function(r){return(r._localId||String(r.id||''))===id;});
   if(idx>=0){Object.assign(_dbAll[idx],u);}else{u._localId='local_'+Date.now();u._csv=true;_dbAll.unshift(u);}
-  try{localStorage.setItem('tlb_db_csv',JSON.stringify(_dbAll.filter(function(r){return r._csv||r._localId;})));}catch(e){}
   dbRender();document.getElementById('dbEditModal').classList.remove('show');
 }
 function dbDeleteRecord(){
   if(!confirm('Delete this record?'))return;
   var id=document.getElementById('dbEditId').value;
   _dbAll=_dbAll.filter(function(r){return(r._localId||String(r.id||''))!==id;});
-  try{localStorage.setItem('tlb_db_csv',JSON.stringify(_dbAll.filter(function(r){return r._csv||r._localId;})));}catch(e){}
   dbRender();document.getElementById('dbEditModal').classList.remove('show');
 }
 function dbEditPushPipeline(){
@@ -2140,7 +2150,6 @@ function dbImportCSV(ev){
       var exists=_dbAll.some(function(x){return(x.email&&x.email===n.email&&n.email)||(x.name&&x.name===n.name&&!n.email);});
       if(!exists){n._localId='csv_'+Date.now()+'_'+(added++);n._csv=true;_dbAll.unshift(n);}
     });
-    try{localStorage.setItem('tlb_db_csv',JSON.stringify(_dbAll.filter(function(r){return r._csv||r._localId;})));}catch(e){}
     _dbPage=0;dbRender();alert(added+' new records imported ('+(rows.length-added)+' duplicates skipped).');
     // Persist new imports to Supabase agents_enriched for sharing
     if(added>0){dbPersistCSVToSupabase(_dbAll.filter(function(r){return r._csv&&r._localId&&r._localId.indexOf('csv_')===0;}));}
@@ -2155,7 +2164,8 @@ function normalizeSalesNavRow(r){
     email:r['Email']||r['email']||r['Email Address']||'',state:r['State']||r['state']||r['Location']||'',
     city:r['City']||r['city']||'',website:r['Website']||r['website']||r['Company Website']||'',
     linkedin:r['LinkedIn URL']||r['Profile URL']||r['linkedin']||'',
-    address:r['Address']||r['address']||'',source:'Sales Navigator Import',notes:'',service:''};
+    address:r['Address']||r['address']||'',source:'Sales Navigator Import',notes:'',service:'',
+    importedAt:new Date().toISOString(),importedDate:new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})};
 }
 function parseCSVtoObjects(text){
   var lines=text.trim().split(/\r?\n/);if(lines.length<2)return[];
@@ -2183,15 +2193,6 @@ function dbExportCSV(){
   var csv=[headers.join(',')].concat(_dbAll.map(function(r){return cols.map(function(k){return '"'+String(r[k]||'').replace(/"/g,'""')+'"';}).join(',');})).join('\n');
   var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
   a.download='leadboss-db-'+new Date().toISOString().split('T')[0]+'.csv';a.click();
-}
-function dbLoadLocalCSV(){
-  try{
-    var saved=localStorage.getItem('tlb_db_csv');if(!saved)return;
-    var recs=JSON.parse(saved);
-    recs.forEach(function(r){
-      if(!_dbAll.some(function(x){return(x._localId&&x._localId===r._localId)||(x.email&&x.email===r.email&&r.email);}))_dbAll.push(r);
-    });
-  }catch(e){}
 }
 function dbPush(json){
   const r=JSON.parse(json);
@@ -2591,12 +2592,12 @@ function clRender(){
     const lastOrder=(c.orders||[]).slice(-1)[0];
     const reorderReady=c.reorderStatus==='Ready to Reorder';
     return`<div class="cl-card ${typeClass[c.type]||''}" onclick="clOpen('${c.id}')">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px">
-        <div>
-          <div style="font-weight:800;font-size:14px;color:var(--ink)">${escapeHtml(c.name)}</div>
+      <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px">
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:800;font-size:14px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(c.name)}</div>
           <div style="font-size:12px;color:var(--muted);margin-top:2px">${escapeHtml(c.email||c.phone||'—')}</div>
         </div>
-        <span class="pl-tag" style="background:${reorderReady?'rgba(185,138,50,.15)':'var(--blush)'};color:${reorderReady?'var(--gold)':'var(--rose-dark)'};flex-shrink:0">
+        <span class="pl-tag" style="background:${reorderReady?'rgba(185,138,50,.15)':'var(--blush)'};color:${reorderReady?'var(--gold)':'var(--rose-dark)'};flex-shrink:0;white-space:normal;text-align:center;max-width:45%;line-height:1.3">
           ${reorderReady?'🎯 Reorder':escapeHtml(c.reorderStatus||'Active')}
         </span>
       </div>
@@ -2728,8 +2729,23 @@ function boot(){renderMission();renderFocusTasks();
   if(s.supabaseUrl&&s.supabaseAnonKey){
     const el=document.getElementById('cloudSyncStatus');
     if(el) el.textContent='Syncing...';
-    loadCloudData(true).catch(()=>{});
-  }checkBrandWarning();updateBrandBrainStatus();refreshMetrics();fillBrand();seedDirectory();renderDirectory();renderChannelButtons();renderResearch();renderStories();renderAssets();initCalendar();}
+    // Load cloud data first, then load database
+    loadCloudData(true).then(function(){
+      loadDB().catch(function(){});
+    }).catch(function(){
+      // Cloud failed — still load database from Supabase directly
+      loadDB().catch(function(){});
+    });
+  } else {
+    // No cloud creds yet — still load agents DB
+    loadDB().catch(function(){});
+  }
+  // Immediately populate database from cached data (instant load, no spinner)
+  if(data.dbAgents&&data.dbAgents.length){
+    var lbl=document.getElementById('dbCountLabel');
+    if(lbl)lbl.textContent=_dbAll.length.toLocaleString()+' agents';
+  }
+  checkBrandWarning();updateBrandBrainStatus();refreshMetrics();fillBrand();seedDirectory();renderDirectory();renderChannelButtons();renderResearch();renderStories();renderAssets();initCalendar();}
 
 // ══════════════════ EMAIL FUNNEL ══════════════════
 const EF_STAGES=['Cold Outreach','Call Booked','Post-Call','Strategy Sent','Proposal Sent','Onboarding','Nurture','Closed','Dead'];
@@ -3612,7 +3628,7 @@ async function dbPersistCSVToSupabase(rows){
 try{boot();}catch(e){console.error('boot() error:',e);}
 try{plRender();}catch(e){console.error('plRender error:',e);}
 try{clRender();}catch(e){console.error('clRender error:',e);}
-try{dbLoadLocalCSV();dbRender();}catch(e){console.error('db error:',e);}
+// DB loads from Supabase on boot via loadDB()
 try{efRender();}catch(e){console.error('efRender:',e);}
 try{efLoadSettings();}catch(e){console.error('efLoadSettings:',e);}
 // Auto-poll cloud every 45 seconds for office-wide sync
@@ -3620,8 +3636,13 @@ setInterval(function(){
   loadCloudData(true).then(function(){
     plRender();clRender();efRender();
     plRepopulateFilters();clRepopulateFilters();
+    refreshMetrics();
   }).catch(function(){});
 }, 45000);
+// Refresh agents database every 5 minutes so it stays current
+setInterval(function(){
+  loadDB().catch(function(){});
+}, 300000);
 </script>
 </div><!-- /os-shell -->
 
