@@ -1444,9 +1444,7 @@ function cloudPayload(){
 }
 let cloudSaveTimer=null;
 function scheduleCloudSave(){
-  // Auto-save whenever Supabase credentials are configured — no toggle needed
-  const s=data.settings||{};
-  if(!s.supabaseUrl||!s.supabaseAnonKey) return;
+  // Always auto-save — credentials are hardcoded
   clearTimeout(cloudSaveTimer);
   cloudSaveTimer=setTimeout(()=>saveCloudDataNow(true),900);
 }
