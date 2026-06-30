@@ -587,10 +587,11 @@ button,input,textarea,select{font:inherit}a,button,.tab-btn,.btn,.asset-card-hea
     <div class="grid">
       <div class="card span-12">
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px">
-          <input id="dbSearch" placeholder="Search name, email, state..." style="width:200px;margin:0" oninput="dbFilter()">
-          <select id="dbEmailOnly" style="width:140px;margin:0" onchange="dbFilter()">
+          <input id="dbSearch" placeholder="Search name, email, phone, state, title..." style="width:220px;margin:0" oninput="dbFilter()">
+          <select id="dbEmailOnly" style="width:160px;margin:0" onchange="dbFilter()">
             <option value="">All records</option>
             <option value="1">Email only</option>
+            <option value="phone">Has phone</option>
             <option value="csv">CSV imports</option>
           </select>
           <label class="btn gold small" style="cursor:pointer;margin:0">&#128229; Import CSV
@@ -2188,8 +2189,9 @@ function dbRender(){
   var fv=document.getElementById('dbEmailOnly')?.value||'';
   var lbl=document.getElementById('dbCountLabel');
   var rows=_dbAll.filter(function(r){
-    var s=((r.name||'')+(r.address||'')+(r.email||'')+(r.state||'')+(r.first_name||'')+(r.last_name||'')+(r.title||'')).toLowerCase();
-    return(!q||s.includes(q))&&(!fv||(fv==='1'&&r.email)||(fv==='csv'&&r._csv));
+    var s=((r.name||'')+(r.address||'')+(r.email||'')+(r.phone||'')+(r.state||'')+(r.first_name||'')+(r.last_name||'')+(r.title||'')).toLowerCase();
+    var hasPhone=!!(r.phone&&String(r.phone).trim());
+    return(!q||s.includes(q))&&(!fv||(fv==='1'&&r.email)||(fv==='phone'&&hasPhone)||(fv==='csv'&&r._csv));
   });
   var total=rows.length;
   _dbFiltered=rows;
