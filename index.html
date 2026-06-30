@@ -3431,7 +3431,7 @@ async function efGeneratePlan(){
   try{
     var r=await fetch(data.settings.workerUrl||'https://leadbossai.arianaisworking.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'gpt-4o',messages:[{role:'user',content:prompt}],max_tokens:900})});
     var d2=await r.json();
-    var text=d2.choices?.[0]?.message?.content||d2.content?.[0]?.text||'Error generating plan';
+    var text=d2.choices?.[0]?.message?.content||d2.content?.[0]?.text||('Error generating plan — '+(d2.error?(d2.error.message||JSON.stringify(d2.error)):'unknown error, status '+r.status));
     if(out)out.textContent=text;
     var arr=efProspects();var lp=arr.find(function(x){return x.id===id;});
     if(lp){lp.notes=(lp.notes?lp.notes+'\n\n---\n':'')+'Strategy Plan ('+new Date().toLocaleDateString()+'):\n'+text;}
@@ -3898,7 +3898,7 @@ async function plGenerateEmail(){
       body:JSON.stringify({model:'gpt-4o',messages:[{role:'user',content:prompt}],max_tokens:500})
     });
     var d=await r.json();
-    var text=d.choices?.[0]?.message?.content||d.content?.[0]?.text||'Could not generate.';
+    var text=d.choices?.[0]?.message?.content||d.content?.[0]?.text||('Could not generate — '+(d.error?(d.error.message||JSON.stringify(d.error)):'unknown error, status '+r.status));
     if(bodyEl)bodyEl.value=text;
     plLivePreview();
     if(btn){btn.textContent='\u2728 Regenerate';btn.disabled=false;}
@@ -4073,7 +4073,7 @@ async function clGenerateNurtureEmail(){
       body:JSON.stringify({model:'gpt-4o',messages:[{role:'user',content:prompt}],max_tokens:400})
     });
     var d=await r.json();
-    var text=d.choices?.[0]?.message?.content||d.content?.[0]?.text||'Could not generate.';
+    var text=d.choices?.[0]?.message?.content||d.content?.[0]?.text||('Could not generate — '+(d.error?(d.error.message||JSON.stringify(d.error)):'unknown error, status '+r.status));
     if(out)out.value=text;
     if(btn){btn.textContent='\u2728 Regenerate';btn.disabled=false;}
   }catch(e){
