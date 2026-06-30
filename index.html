@@ -1064,7 +1064,7 @@ button,input,textarea,select{font:inherit}a,button,.tab-btn,.btn,.asset-card-hea
 
           <div style="display:flex;gap:8px;padding-top:14px;border-top:1px solid var(--line)">
             <button class="btn blush" onclick="clModalSave()" style="flex:2">Save Changes</button>
-            <button class="btn secondary small" style="color:var(--danger)" onclick="clDelete()">Delete Client</button>
+            <button class="btn secondary small" style="color:var(--danger)" onclick="clModalDelete()">Delete Client</button>
           </div>
         </div>
       </div>
@@ -1479,9 +1479,56 @@ function forceCloudSave(){
   clearTimeout(cloudSaveTimer);
   saveCloudDataNow(true);
 }
+// Atomic delete: fetches the freshest cloud payload, removes the record by id
+// directly from THAT copy (not from whatever this tab happens to have in memory),
+// then writes it straight back. This is what actually makes a delete stick even if
+// this tab's local data was a few minutes stale relative to the cloud.
+async function atomicListDelete(field,id){
+  try{
+    const base=getSupabaseRestBase();
+    const res=await fetch(base+'/rest/v1/tlb_app_state?id=eq.shared&select=payload',{headers:cloudHeaders()});
+    const rows=res.ok?await res.json():[];
+    const cloudNow=(rows[0]&&rows[0].payload)||{};
+    const cloudArr=Array.isArray(cloudNow[field])?cloudNow[field]:[];
+    const freshArr=cloudArr.filter(function(it){return!(it&&it.id===id);});
+    cloudNow[field]=freshArr;
+    data[field]=freshArr;
+    localStorage.setItem(LS,JSON.stringify(data));
+    const writeRes=await fetch(base+'/rest/v1/tlb_app_state?id=eq.shared',{
+      method:'PATCH',
+      headers:{...cloudHeaders(),'Prefer':'return=minimal'},
+      body:JSON.stringify({payload:cloudNow,updated_at:new Date().toISOString()})
+    });
+    if(!writeRes.ok) throw new Error(await writeRes.text());
+    const el=document.getElementById('cloudSyncStatus');
+    if(el) el.textContent='Shared memory saved: '+new Date().toLocaleString();
+  }catch(err){
+    console.error('atomicListDelete failed:',err);
+    const el=document.getElementById('cloudSyncStatus');
+    if(el) el.textContent='Delete sync failed: '+(err.message||err)+' — it may reappear, try again.';
+  }
+}
 async function saveCloudDataNow(silent=false){
   try{
     const base=getSupabaseRestBase();
+    // Pull the freshest cloud copy first and merge in anything added elsewhere
+    // (e.g. a new order/lead pushed by the website's Cloudflare Worker) so this
+    // save can't silently stomp it just because this tab hadn't seen it yet.
+    try{
+      const preRes=await fetch(base+'/rest/v1/tlb_app_state?id=eq.shared&select=payload',{headers:cloudHeaders()});
+      if(preRes.ok){
+        const preRows=await preRes.json();
+        const cloudNow=(preRows[0]&&preRows[0].payload)||{};
+        ['clients','pipelineLeads','pipelineClients'].forEach(function(field){
+          const cloudArr=Array.isArray(cloudNow[field])?cloudNow[field]:[];
+          const localArr=Array.isArray(data[field])?data[field]:[];
+          const localIds={};
+          localArr.forEach(function(it){if(it&&it.id)localIds[it.id]=true;});
+          const onlyInCloud=cloudArr.filter(function(it){return it&&it.id&&!localIds[it.id];});
+          if(onlyInCloud.length) data[field]=localArr.concat(onlyInCloud);
+        });
+      }
+    }catch(e){ /* if the pre-fetch fails, fall through and save local state as-is */ }
     const payload=cloudPayload();
     const res=await fetch(base+'/rest/v1/tlb_app_state',{
       method:'POST',
@@ -1489,6 +1536,7 @@ async function saveCloudDataNow(silent=false){
       body:JSON.stringify({id:'shared',payload,updated_at:new Date().toISOString()})
     });
     if(!res.ok) throw new Error(await res.text());
+    localStorage.setItem(LS,JSON.stringify(data));
     const el=document.getElementById('cloudSyncStatus');
     if(el) el.textContent='Shared memory saved: '+new Date().toLocaleString();
     if(!silent) showModal('Shared Supabase memory saved successfully.');
@@ -2613,7 +2661,8 @@ function plModalSave(){
 function plModalDelete(){
   const id=document.getElementById('plModalId').value;
   tlbConfirm('Delete this lead?',function(){
-    plSet(plLeads().filter(l=>l.id!==id));forceCloudSave();plRender();plModalClose();
+    plSet(plLeads().filter(l=>l.id!==id));plRender();plModalClose();
+    atomicListDelete('pipelineLeads',id).then(function(){plRender();});
   });
 }
 function plModalClose(){document.getElementById('plModal').classList.remove('show');}
@@ -2791,7 +2840,8 @@ function clModalSave(){
 function clModalDelete(){
   const id=document.getElementById('clModalId').value;
   tlbConfirm('Remove this client?',function(){
-    plSetClients(plClients().filter(c=>c.id!==id));forceCloudSave();clRender();clModalClose();
+    plSetClients(plClients().filter(c=>c.id!==id));clRender();clModalClose();
+    atomicListDelete('clients',id).then(function(){clRender();});
   });
 }
 function clModalClose(){document.getElementById('clModal').classList.remove('show');}
