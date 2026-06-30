@@ -2167,17 +2167,26 @@ function copyDayPost(btn){
 
 // ══════════════════ DATABASE ══════════════════
 let _dbAll=[],_dbPage=0;const DB_SZ=60;
-async function loadDB(){
+async function loadDB(preservePage){
   const list=document.getElementById('dbList');
   const lbl=document.getElementById('dbCountLabel');
-  if(list) list.innerHTML='<div style="text-align:center;padding:40px;color:var(--muted)">Loading agencies…</div>';
+  if(!preservePage&&list) list.innerHTML='<div style="text-align:center;padding:40px;color:var(--muted)">Loading agencies…</div>';
   try{
     const base=getSupabaseRestBase();
-    const res=await fetch(base+'/rest/v1/agents_enriched?select=id,name,phone,email,website,address,source&limit=2000&order=id.desc',{headers:cloudHeaders()});
+    const wideSelect='id,name,phone,email,website,address,source,notes,title,first_name,last_name,state,city,linkedin,service';
+    let res=await fetch(base+'/rest/v1/agents_enriched?select='+wideSelect+'&limit=2000&order=id.desc',{headers:cloudHeaders()});
+    if(!res.ok){
+      // Wide select failed — most likely one of those columns doesn't exist on the table yet.
+      // Fall back so the Database tab still loads; run the migration SQL to unlock notes/title/etc.
+      res=await fetch(base+'/rest/v1/agents_enriched?select=id,name,phone,email,website,address,source&limit=2000&order=id.desc',{headers:cloudHeaders()});
+    }
     if(!res.ok) throw new Error('Supabase '+res.status);
     _dbAll=await res.json();
     if(_dbHiddenIds.size) _dbAll=_dbAll.filter(function(r){return!_dbHiddenIds.has(String(r.id));});
-    _dbPage=0;dbRender();
+    if(!preservePage) _dbPage=0;
+    var maxPage=Math.max(0,Math.ceil(_dbAll.length/DB_SZ)-1);
+    if(_dbPage>maxPage) _dbPage=maxPage;
+    dbRender();
     if(lbl) lbl.textContent=_dbAll.length.toLocaleString()+' agents';
   var kpiEl=document.getElementById('kpiDatabase');if(kpiEl)kpiEl.textContent=_dbAll.length.toLocaleString();
   }catch(e){
@@ -2255,18 +2264,47 @@ function dbOpenEdit(json){
   if(g('dbESource'))g('dbESource').value=r.source||'Scraped - Google Maps';
   document.getElementById('dbEditModal').classList.add('show');
 }
-function dbSaveEdit(){
+async function dbSaveEdit(){
   var g=function(i){return document.getElementById(i);};
   var id=g('dbEditId').value;
   var u={name:g('dbEName').value.trim()||((g('dbEFirst').value+' '+g('dbELast').value).trim()),
     first_name:g('dbEFirst').value.trim(),last_name:g('dbELast').value.trim(),
     title:g('dbETitle').value.trim(),phone:g('dbEPhone').value.trim(),email:g('dbEEmail').value.trim(),
     state:g('dbEState').value.trim(),city:g('dbECity').value.trim(),
+    address:(g('dbECity').value.trim()?g('dbECity').value.trim()+', ':'')+g('dbEState').value.trim(),
     website:g('dbEWeb').value.trim(),linkedin:g('dbELinkedin').value.trim(),
     notes:g('dbENotes').value.trim(),service:g('dbEService')?.value||'',source:g('dbESource')?.value||''};
   var idx=_dbAll.findIndex(function(r){return(r._localId||String(r.id||''))===id;});
-  if(idx>=0){Object.assign(_dbAll[idx],u);}else{u._localId='local_'+Date.now();u._csv=true;_dbAll.unshift(u);}
+  var existing=idx>=0?_dbAll[idx]:null;
+  var base=getSupabaseRestBase();
+  var lbl=document.getElementById('dbCountLabel');
+  var saveFailed=false,saveErr='';
+  try{
+    if(existing&&!existing._localId&&existing.id!=null){
+      // Real Supabase row — PATCH it so the edit (notes included) actually persists and syncs for Aima
+      var res=await fetch(base+'/rest/v1/agents_enriched?id=eq.'+encodeURIComponent(existing.id),{
+        method:'PATCH',headers:{...cloudHeaders(),'Prefer':'return=minimal'},body:JSON.stringify(u)
+      });
+      if(!res.ok) throw new Error(await res.text());
+      Object.assign(existing,u);
+    }else{
+      // New record — insert it for real instead of stashing it as a local-only stub
+      var res2=await fetch(base+'/rest/v1/agents_enriched',{
+        method:'POST',headers:{...cloudHeaders(),'Prefer':'return=representation'},body:JSON.stringify(u)
+      });
+      if(!res2.ok) throw new Error(await res2.text());
+      var inserted=(await res2.json())[0]||u;
+      if(existing){Object.assign(existing,inserted);}else{_dbAll.unshift(inserted);}
+    }
+  }catch(err){
+    console.error('dbSaveEdit sync failed:',err);
+    saveFailed=true;saveErr=(err.message||'').slice(0,140);
+    if(existing){Object.assign(existing,u);}else{u._localId='local_'+Date.now();u._csv=true;_dbAll.unshift(u);}
+  }
   dbRender();document.getElementById('dbEditModal').classList.remove('show');
+  // Set this AFTER dbRender() — dbRender() also writes to dbCountLabel, which would
+  // otherwise instantly clobber this error message before it's ever visible.
+  if(saveFailed&&lbl) lbl.textContent='⚠ Save sync failed: '+saveErr+' — kept locally only for now';
 }
 function dbDeleteRecord(){
   var id=document.getElementById('dbEditId').value;
@@ -4195,9 +4233,10 @@ setInterval(function(){
     refreshMetrics();
   }).catch(function(){});
 }, 45000);
-// Refresh agents database every 5 minutes so it stays current
+// Refresh agents database every 5 minutes so it stays current — preserves whatever
+// page you're currently browsing instead of jumping back to page 1.
 setInterval(function(){
-  loadDB().catch(function(){});
+  loadDB(true).catch(function(){});
 }, 300000);
 </script>
 </div><!-- /os-shell -->
